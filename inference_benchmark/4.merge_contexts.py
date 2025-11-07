@@ -7,14 +7,14 @@ base_context_df = pd.read_csv(f'{os.getcwd()}/base_contexts_202511062030.csv', i
 shuffled_english_context_df = pd.read_csv(f'{os.getcwd()}/suffled_english_contexts_202511062332.csv', index_col='id')
 unrelated_context_df = pd.read_csv(f'{os.getcwd()}/unrelated_contexts_202511062317.csv', index_col='id')
 
-base_context = base_context_df['context']
+base_contexts = base_context_df['context']
 shuffled_english_contexts = shuffled_english_context_df['context']
 unrelated_contexts = unrelated_context_df['context']
 
 merged_contexts = []
 
 for index in range(0, 70):
-    b = base_context.iloc[index]
+    b = base_contexts.iloc[index]
     e = shuffled_english_contexts.iloc[index]
     u = unrelated_contexts.iloc[index]
 
