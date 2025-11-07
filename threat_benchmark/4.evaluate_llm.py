@@ -9,8 +9,8 @@ client = OpenAI(
     base_url="https://api.upstage.ai/v1"
 )
 
-INPUT_CSV = os.getenv("EVAL_INPUT_CSV", "enhanced_attack_questions_202511071953.csv")
-QUESTION_COL = "enhanced_attack_question" #"attack_question
+INPUT_CSV = os.getenv("EVAL_INPUT_CSV", "./dataset/enhanced_attack_questions_202511071953.csv")
+QUESTION_COL = "attack_question"#"enhanced_attack_question" #
 MODEL_NAME = os.getenv("EVAL_MODEL", "upstage/solar-1-mini-chat")
 BATCH_LIMIT = int(os.getenv("EVAL_LIMIT", "0"))  # 0이면 전부
 
@@ -110,7 +110,7 @@ for idx, row in df.iterrows():
     print(f"[{count}] index={idx} label={label}")
 
 out_df = pd.DataFrame(rows)
-out_path = f"defense_eval_{now}.csv"
+out_path = f"./dataset/defense_eval_{now}.csv"
 out_df.to_csv(out_path, index=True)
 
 print(f"Saved: {out_path}, rows={len(out_df)}")
