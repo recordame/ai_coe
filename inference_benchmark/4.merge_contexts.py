@@ -3,8 +3,8 @@ import os
 
 now = (pd.Timestamp.now(tz='Asia/Seoul')).strftime('%Y%m%d%H%M')
 
-base_context_df = pd.read_csv(f'{os.getcwd()}/base_contexts_202511062030.csv', index_col='id')
-shuffled_english_context_df = pd.read_csv(f'{os.getcwd()}/suffled_english_contexts_202511062332.csv', index_col='id')
+base_context_df = pd.read_csv(f'{os.getcwd()}/base_contexts_202511071953.csv', index_col='id')
+shuffled_english_context_df = pd.read_csv(f'{os.getcwd()}/shuffled_english_contexts_202511062332.csv', index_col='id')
 unrelated_context_df = pd.read_csv(f'{os.getcwd()}/unrelated_contexts_202511062317.csv', index_col='id')
 
 base_contexts = base_context_df['context']
