@@ -1,0 +1,4 @@
+inference_benchmark/dataset/
+inference_benchmark/output/
+threat_benchmark/dataset/
+*.csv
