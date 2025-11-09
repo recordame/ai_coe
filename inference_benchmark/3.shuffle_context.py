@@ -10,4 +10,4 @@ shuffled_contexts = source_contexts['context'].sample(frac=1, random_state=42)
 print(source_contexts.head())
 print(shuffled_contexts.head())
 
-shuffled_contexts.to_csv(f'./shuffled_english_contexts_{now}.csv', index=True)
+shuffled_contexts.to_csv(f'{os.getcwd()}/output/shuffled_english_contexts_{now}.csv', index=True)

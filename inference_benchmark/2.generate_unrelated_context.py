@@ -37,4 +37,4 @@ for index in range(1, 71):
     unrelated_context.append(unrelated_context_str)
 
 unrelated_context_df['context'] = unrelated_context
-unrelated_context_df.to_csv(f'./unrelated_contexts_{now}.csv', index=True)
+unrelated_context_df.to_csv(f'{os.getcwd()}/output/unrelated_contexts_{now}.csv', index=True)

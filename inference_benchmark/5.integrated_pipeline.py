@@ -501,7 +501,7 @@ class InferenceBenchmarkPipeline:
         noise_dfs['unrelated_legal'] = pd.DataFrame({'context': unrelated_contexts})
         
         output_file = self.output_path / f'unrelated_contexts_{self.timestamp}.csv'
-        noise_dfs['unrelated_legal'].to_csv(output_file, index=True, index_label='id')
+        noise_dfs['unrelated_legal'].to_csv(output_file)
         self.logger.info(f"✓ 저장: {output_file}")
         
         # 2. 유사 도메인 (샘플링하여 생성)
@@ -521,7 +521,7 @@ class InferenceBenchmarkPipeline:
         noise_dfs['similar_domain'] = pd.DataFrame({'context': similar_contexts})
         
         output_file = self.output_path / f'similar_domain_contexts_{self.timestamp}.csv'
-        noise_dfs['similar_domain'].to_csv(output_file, index=True, index_label='id')
+        noise_dfs['similar_domain'].to_csv(output_file)
         self.logger.info(f"✓ 저장: {output_file}")
         
         # 3. 모순 정보 (샘플링하여 생성)
@@ -542,7 +542,7 @@ class InferenceBenchmarkPipeline:
         noise_dfs['contradictory'] = pd.DataFrame({'context': contradictory_contexts})
         
         output_file = self.output_path / f'contradictory_contexts_{self.timestamp}.csv'
-        noise_dfs['contradictory'].to_csv(output_file, index=True, index_label='id')
+        noise_dfs['contradictory'].to_csv(output_file)
         self.logger.info(f"✓ 저장: {output_file}")
         
         # 4. 부분 겹침 (샘플링하여 생성)
@@ -561,7 +561,7 @@ class InferenceBenchmarkPipeline:
         noise_dfs['partial_overlap'] = pd.DataFrame({'context': partial_contexts})
         
         output_file = self.output_path / f'partial_overlap_contexts_{self.timestamp}.csv'
-        noise_dfs['partial_overlap'].to_csv(output_file, index=True, index_label='id')
+        noise_dfs['partial_overlap'].to_csv(output_file)
         self.logger.info(f"✓ 저장: {output_file}")
         
         return noise_dfs
@@ -637,7 +637,7 @@ class InferenceBenchmarkPipeline:
                 
                 # 저장
                 output_file = self.output_path / f'noisy_dataset_{difficulty.name}_{position.value}_{self.timestamp}.csv'
-                dataset_df.to_csv(output_file, index=True, index_label='id')
+                dataset_df.to_csv(output_file)
                 self.logger.info(f"  ✓ 저장: {output_file}")
         
         return datasets
@@ -721,7 +721,7 @@ class InferenceBenchmarkPipeline:
 # ==================== 실행 예제 ====================
 
 # 설정
-base_file_path = './dataset/base_contexts_202511062030.csv'
+base_file_path = './dataset/base_contexts.csv'
 
 config = PipelineConfig(
     base_context_file=base_file_path,

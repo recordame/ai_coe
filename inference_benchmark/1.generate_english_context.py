@@ -34,7 +34,7 @@ def translate_to_english(statement: str) -> str:
 
 ##################
 
-base_contexts_df = pd.read_csv(f'{os.getcwd()}/base_contexts_202511062030.csv', index_col='id')
+base_contexts_df = pd.read_csv(f'{os.getcwd()}/base_contexts.csv', index_col='id')
 now = (pd.Timestamp.now(tz='Asia/Seoul')).strftime('%Y%m%d%H%M')
 
 # 영문으로 번역하기 위한 context 복사
@@ -43,5 +43,5 @@ english_context = base_contexts_df['context']
 for index in range(len(english_context)):
     print(index)
     english_context.iloc[index] = translate_to_english(english_context.iloc[index])
-    english_context.to_csv(f'english_contexts_{now}.csv')
+    english_context.to_csv(f'{os.getcwd()}/output/english_contexts_{now}.csv')
 

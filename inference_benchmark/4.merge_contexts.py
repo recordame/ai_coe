@@ -3,9 +3,9 @@ import os
 
 now = (pd.Timestamp.now(tz='Asia/Seoul')).strftime('%Y%m%d%H%M')
 
-base_context_df = pd.read_csv(f'{os.getcwd()}/base_contexts_202511071953.csv', index_col='id')
-shuffled_english_context_df = pd.read_csv(f'{os.getcwd()}/shuffled_english_contexts_202511062332.csv', index_col='id')
-unrelated_context_df = pd.read_csv(f'{os.getcwd()}/unrelated_contexts_202511062317.csv', index_col='id')
+base_context_df = pd.read_csv(f'{os.getcwd()}/output/base_contexts_202511071953.csv', index_col='id')
+shuffled_english_context_df = pd.read_csv(f'{os.getcwd()}/output/shuffled_english_contexts_202511062332.csv', index_col='id')
+unrelated_context_df = pd.read_csv(f'{os.getcwd()}/output/unrelated_contexts_202511062317.csv', index_col='id')
 
 base_contexts = base_context_df['context']
 shuffled_english_contexts = shuffled_english_context_df['context']
@@ -27,4 +27,4 @@ for index in range(0, 70):
 
 base_context_df['context'] = merged_contexts
 
-base_context_df.to_csv(f'./merged_contexts_{now}.csv', index=True)
+base_context_df.to_csv(f'{os.getcwd()}/output/merged_contexts_{now}.csv', index=True)

@@ -8,7 +8,7 @@ client = OpenAI(
     base_url="https://api.upstage.ai/v1"
 )
 
-initial_attack_question_df = pd.read_csv(f'{os.getcwd()}/attack_questions_202511071911.csv', index_col='id')
+initial_attack_question_df = pd.read_csv(f'{os.getcwd()}/output/attack_questions_202511071911.csv', index_col='id')
 enhanced_attack_questions = []
 
 now = (pd.Timestamp.now(tz='Asia/Seoul')).strftime('%Y%m%d%H%M')

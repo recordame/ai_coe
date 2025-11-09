@@ -10,7 +10,7 @@ client = OpenAI(
     base_url="https://api.upstage.ai/v1"
 )
 
-base_question_df = pd.read_csv(f'{os.getcwd()}/base_questions_202511052048.csv', index_col='id')
+base_question_df = pd.read_csv(f'{os.getcwd()}/base_questions.csv', index_col='id')
 attack_questions = []
 
 now = (pd.Timestamp.now(tz='Asia/Seoul')).strftime('%Y%m%d%H%M')
@@ -66,4 +66,4 @@ for idx, row in base_question_df.iterrows():
     print(f'{idx}: {result}')
 
 base_question_df['attack_question'] = attack_questions
-pd.DataFrame(base_question_df).to_csv(f'attack_questions_{now}.csv', index=True)
+pd.DataFrame(base_question_df).to_csv(f'{os.getcwd()}/output/attack_questions_{now}.csv', index=True)
