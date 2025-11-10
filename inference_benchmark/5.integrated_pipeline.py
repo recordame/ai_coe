@@ -30,8 +30,20 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import warnings
 warnings.filterwarnings('ignore')
 
+client = OpenAI(api_key="up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc", base_url="https://api.upstage.ai/v1")
 
 # ==================== 설정 클래스 ====================
+
+def call_llm(messages, temp: float = 0.4) -> str:
+    response = client.chat.completions.create(
+        model="upstage/solar-1-mini-chat",
+        messages=messages,
+        stream=False,
+        temperature=temp,
+        max_tokens=16384,
+    )
+
+    return response.choices[0].message.content
 
 class NoiseType(Enum):
     """노이즈 유형"""
@@ -67,12 +79,6 @@ class PipelineConfig:
     # 파일 경로
     base_context_file: str
     output_dir: str = "./output"
-    
-    # API 설정
-    api_key: str = "up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc"
-    base_url: str = "https://api.upstage.ai/v1"
-    translation_model: str = "upstage/solar-1-mini-chat"
-    generation_model: str = "solar-pro2"
     
     # 생성 설정
     num_unrelated_contexts: int = 70
@@ -118,172 +124,113 @@ class PipelineConfig:
             ]
 
 
-# ==================== 유틸리티 클래스 ====================
-
-class Logger:
-    """로깅 유틸리티"""
+# ==================== 노이즈 생성 ====================
+def generate_unrelated_legal(num: int = 70) -> List[str]:
+    """무관한 법률 조항 생성"""
+    print(f"무관한 법률 조항 {num}개 생성 중...")
     
-    @staticmethod
-    def setup(output_dir: str) -> logging.Logger:
-        """로거 설정"""
-        Path(output_dir).mkdir(parents=True, exist_ok=True)
+    unrelated_contexts = []
+    for i in range(num):
+        print(f"  진행: {i+1}/{num}")
         
-        # log_file = Path(output_dir) / f"pipeline_{(pd.Timestamp.now(tz='Asia/Seoul')).strftime('%Y%m%d%H%M')}.log"
-        
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                # logging.FileHandler(log_file, encoding='utf-8'),
-                logging.StreamHandler()
-            ]
-        )
-        
-        return logging.getLogger(__name__)
-
-
-class APIClient:
-    """API 클라이언트"""
-    
-    def __init__(self, api_key: str, base_url: str):
-        self.client = OpenAI(api_key=api_key, base_url=base_url)
-    
-    def call(self, model: str, messages: List[Dict], temperature: float = 0, max_tokens: int = 16384, retry: int = 3) -> str:
-        """API 호출 with 재시도"""
-        for attempt in range(retry):
-            try:
-                response = self.client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    stream=False,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                )
-
-                return response.choices[0].message.content
-            except Exception as e:
-                if attempt == retry - 1:
-                    raise
-
-                time.sleep(attempt)
-        return ""
-
-
-# ==================== 노이즈 생성 클래스 ====================
-
-class NoiseGenerator:
-    """다양한 유형의 노이즈 생성"""
-    
-    def __init__(self, api_client: APIClient, config: PipelineConfig, logger: logging.Logger):
-        self.api = api_client
-        self.config = config
-        self.logger = logger
-    
-    def generate_unrelated_legal(self, num: int) -> List[str]:
-        """무관한 법률 조항 생성"""
-        self.logger.info(f"무관한 법률 조항 {num}개 생성 중...")
-        
-        contexts = []
-        for i in range(num):
-            self.logger.info(f"  진행: {i+1}/{num}")
-            
-            messages = [
-                {
-                    "role": "system",
-                    "content": "당신은 법률 전문가 입니다. 사용자가 '아무 법조항이나 알려줘' 라는 입력을 하면 "
-                              "금융관련 법률 이 외의 법률(예, 헌법, 민법, 형법, 행정법 등)에서 법률과 하위 조, 항, 호, 목을 출력해줘! "
-                              "그 어떤 법률 해설이나 마크다운 서식을 적용하지 말고 줄바꿈만 해줘. 단 매 생성마다 새로운 법안을 불러와줘!"
-                },
-                {
-                    "role": "user",
-                    "content": "아무 법조항이나 알려줘"
-                }
-            ]
-            
-            try:
-                context = self.api.call(self.config.generation_model, messages, temperature=1)
-                contexts.append(context)
-            except Exception as e:
-                self.logger.error(f"  생성 실패 (index {i}): {e}")
-                contexts.append("")
-        
-        return contexts
-    
-    def generate_similar_domain(self, base_context: str) -> str:
-        """유사 도메인 노이즈 생성"""
         messages = [
             {
                 "role": "system",
-                "content": "당신은 금융 법률 전문가입니다. 주어진 본문과 같은 금융 도메인이지만, "
-                          "본문의 질문에 답하는 데 전혀 도움이 되지 않는 다른 금융 법률 조항을 생성해주세요."
+                "content": "당신은 법률 전문가 입니다. 사용자가 '아무 법조항이나 알려줘' 라는 입력을 하면 "
+                            "금융관련 법률 이 외의 법률(예, 헌법, 민법, 형법, 행정법 등)에서 법률과 하위 조, 항, 호, 목을 출력해줘! "
+                            "그 어떤 법률 해설이나 마크다운 서식을 적용하지 말고 줄바꿈만 해줘. 단 매 생성마다 새로운 법안을 불러와줘! "
+                            "생성에 대한 기준 또는 어떤한 생성관련 설명은 필요 없어!!!"
             },
             {
                 "role": "user",
-                "content": f"""다음 본문과 유사하지만 무관한 금융 법률 조항을 생성해주세요.
-                            본문:
-                            {base_context}
-
-                            요구사항:
-                            - 금융 관련 용어를 사용할 것
-                            - 본문과 비슷한 구조를 가질 것
-                            - 하지만 본문의 질문과는 완전히 무관할 것
-                            - 법률 조항 형식으로 작성할 것
-                            """
+                "content": "아무 법조항이나 알려줘"
             }
         ]
         
-        return self.api.call(self.config.generation_model, messages, temperature=0.8)
+        context = call_llm(messages, 1)
+        print(context)
+        unrelated_contexts.append(context)
+
+    return unrelated_contexts
+
+def generate_similar_domain(base_context: str) -> str:
+    """유사 도메인 노이즈 생성"""
+    messages = [
+        {
+            "role": "system",
+            "content": "당신은 금융 법률 전문가입니다. 주어진 본문과 같은 금융 도메인이지만, "
+                        "본문의 질문에 답하는 데 전혀 도움이 되지 않는 다른 금융 법률 조항을 생성해주세요."
+                        "생성에 대한 기준 또는 어떤한 생성관련 설명은 필요 없어요!!!"
+        },
+        {
+            "role": "user",
+            "content": f"""다음 본문과 유사하지만 무관한 금융 법률 조항을 생성해주세요.
+                        본문:
+                        {base_context}
+
+                        요구사항:
+                        - 금융 관련 용어를 사용할 것
+                        - 본문과 비슷한 구조를 가질 것
+                        - 하지만 본문 과는 완전히 무관할 것
+                        - 법률 조항 형식으로 작성할 것
+                        """
+        }
+    ]
     
-    def generate_contradictory(self, base_context: str, answer: str) -> str:
-        """모순 정보 생성"""
-        messages = [
-            {
-                "role": "system",
-                "content": "당신은 금융 법률 전문가입니다. 주어진 본문과 정답을 보고, "
-                          "정답과 모순되지만 그럴듯해 보이는 법률 조항을 생성해주세요."
-            },
-            {
-                "role": "user",
-                "content": f"""다음 본문과 정답을 보고, 정답과 모순되는 정보를 생성해주세요.
-                            본문:
-                            {base_context}
+    return call_llm(messages, 0.8)
 
-                            정답:
-                            {answer}
+def generate_contradictory(base_context: str, answer: str) -> str:
+    """모순 정보 생성"""
+    messages = [
+        {
+            "role": "system",
+            "content": "당신은 금융 법률 전문가입니다. 주어진 본문과 정답을 보고, "
+                        "정답과 모순되지만 그럴듯해 보이는 법률 조항을 생성해주세요."
+                        "생성에 대한 기준 또는 어떤한 생성관련 설명은 필요 없어요!!!"
+        },
+        {
+            "role": "user",
+            "content": f"""다음 본문과 정답을 보고, 정답과 모순되는 정보를 생성해주세요.
+                        본문:
+                        {base_context}
 
-                            요구사항:
-                            - 정답과 반대되는 내용
-                            - 하지만 문맥상 자연스러울 것
-                            - 법률 조항 형식을 유지할 것
-                            """
-            }
-        ]
-        
-        return self.api.call(self.config.generation_model, messages, temperature=0.8)
+                        정답:
+                        {answer}
+
+                        요구사항:
+                        - 정답과 반대되는 내용
+                        - 하지만 문맥상 자연스러울 것
+                        - 법률 조항 형식을 유지할 것
+                        """
+        }
+    ]
     
-    def generate_partial_overlap(self, base_context: str) -> str:
-        """부분 겹침 정보 생성"""
-        messages = [
-            {
-                "role": "system",
-                "content": "당신은 금융 법률 전문가입니다. 주어진 본문과 일부 단어나 개념은 겹치지만, "
-                          "전체적으로는 다른 내용의 법률 조항을 생성해주세요."
-            },
-            {
-                "role": "user",
-                "content": f"""다음 본문과 일부 겹치지만 다른 내용의 법률 조항을 생성해주세요.
-                            본문:
-                            {base_context}
+    return call_llm(messages, 0.8)
 
-                            요구사항:
-                            - 본문의 주요 키워드 중 일부를 사용할 것
-                            - 하지만 전체 의미는 완전히 다를 것
-                            - 법률 조항 형식을 유지할 것
-                            """
-            }
-        ]
-        
-        return self.api.call(self.config.generation_model, messages, temperature=0.8)
+def generate_partial_overlap(base_context: str) -> str:
+    """부분 겹침 정보 생성"""
+    messages = [
+        {
+            "role": "system",
+            "content": "당신은 금융 법률 전문가입니다. 주어진 본문과 일부 단어나 개념은 겹치지만, "
+                        "전체적으로는 다른 내용의 법률 조항을 생성해주세요."
+                        "생성에 대한 기준 또는 어떤한 생성관련 설명은 필요 없어요!!!"
+        },
+        {
+            "role": "user",
+            "content": f"""다음 본문과 일부 겹치지만 다른 내용의 법률 조항을 생성해주세요.
+                        본문:
+                        {base_context}
+
+                        요구사항:
+                        - 본문의 주요 키워드 중 일부를 사용할 것
+                        - 하지만 전체 의미는 완전히 다를 것
+                        - 법률 조항 형식을 유지할 것
+                        """
+        }
+    ]
+    
+    return call_llm(messages, 0.8)
 
 
 class NoisePositioner:
@@ -339,56 +286,28 @@ class NoisePositioner:
 
 
 # ==================== 번역 클래스 ====================
+def translate_to_english(content: str) -> str:
+    messages=[
+        {
+            "role": "system",
+            "content": "당신은 금융 법률용어 전문가로 한국어와 영어에 능통한 번역가이기도 합니다. 사용자가 입력한 법 조항을 친절하게 영어로 번역해주세요! 대답을 할 때는 이런저런 설명(예: Translate the following into English!) 붙이지 말고 번역문만 출력해주세요!!"
+        },
+        {
+            "role": "user",
+            "content": f"{content}"
+        }
+    ]
 
-class Translator:
-    """텍스트 번역"""
-    
-    def __init__(self, api_client: APIClient, config: PipelineConfig, logger: logging.Logger):
-        self.api = api_client
-        self.config = config
-        self.logger = logger
-    
-    def translate_to_english(self, text: str) -> str:
-        """한국어를 영어로 번역"""
-        messages = [
-            {
-                "role": "system",
-                "content": "당신은 금융 법률용어 전문가로 한국어와 영어에 능통한 번역가이기도 합니다. "
-                          "사용자가 입력한 법 조항을 친절하게 영어로 번역해주세요! "
-                          "대답을 할 때는 이런저런 설명(예: Translate the following into English!) 붙이지 말고 번역문만 출력해주세요!!"
-            },
-            {
-                "role": "user",
-                "content": f"{text}\n"
-            }
-        ]
-        
-        return self.api.call(self.config.translation_model, messages, temperature=0)
-    
-    def translate_batch(self, texts: pd.Series) -> pd.Series:
-        """배치 번역"""
-        self.logger.info(f"텍스트 {len(texts)}개 번역 중...")
-        
-        translated:pd.Series = texts.copy()
-        
-        for idx in texts.index:
-            self.logger.info(f"  진행: {idx+1}/{len(texts)}")
-            try:
-                translated.loc[idx] = self.translate_to_english(texts.loc[idx])
-            except Exception as e:
-                self.logger.error(f"  번역 실패 (index {idx}): {e}")
-                translated.loc[idx] = ""
-        
-        return translated
+    english_statement = call_llm(messages, 0)
 
+    return english_statement
 
 # ==================== 평가 클래스 ====================
 
 class ReasoningEvaluator:
     """추론 능력 평가"""
     
-    def __init__(self, logger: logging.Logger):
-        self.logger = logger
+    def __init__(self):
         self.vectorizer = TfidfVectorizer()
     
     def exact_match(self, text1: str, text2: str) -> float:
@@ -451,12 +370,8 @@ class InferenceBenchmarkPipeline:
     
     def __init__(self, config: PipelineConfig):
         self.config = config
-        self.logger = Logger.setup(config.output_dir)
-        self.api_client = APIClient(config.api_key, config.base_url)
-        self.translator = Translator(self.api_client, config, self.logger)
-        self.noise_generator = NoiseGenerator(self.api_client, config, self.logger)
         self.noise_positioner = NoisePositioner()
-        self.evaluator = ReasoningEvaluator(self.logger)
+        self.evaluator = ReasoningEvaluator()
         
         # 결과 저장용
         self.timestamp = (pd.Timestamp.now(tz='Asia/Seoul')).strftime('%Y%m%d%H%M')
@@ -468,118 +383,114 @@ class InferenceBenchmarkPipeline:
         np.random.seed(config.random_seed)
         
     def shuffled_english_contexts(self, df: pd.DataFrame) -> pd.DataFrame:
-        """본문 영어 번역"""
-        self.logger.info("=" * 80)
-        self.logger.info("Step 2: 본문 영어 번역")
-        self.logger.info("=" * 80)
+        print("=" * 80)
+        print("본문 영어 번역 및 번호 섞은 후 저장")
+        print("=" * 80)
         
-        english_contexts = self.translator.translate_batch(df['context'])
+        english_contexts = []
+
+        for idx, row in df.iterrows():
+            translated_content = translate_to_english(row['context'])
+            print(translated_content, f'\n항목 {idx} 번역 완료')
+            english_contexts.append(translated_content)
         
         # 결과 저장
         result_df = pd.DataFrame({'context': english_contexts})
-        print(result_df)
         result_df = result_df.sample(frac=1, random_state=42).reset_index(drop=True)
-        print(result_df)
         output_file = self.output_path / f'shuffled_english_contexts_{self.timestamp}.csv'
         result_df.to_csv(output_file, index=True, index_label='id')
 
-        self.logger.info(f"✓ 번역 완료: {output_file}")
+        print(f"✓ 번역 완료: {output_file}")
         
         return result_df
     
     def generate_noise_contexts(self, base_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
         """다양한 노이즈 컨텍스트 생성"""
-        self.logger.info("=" * 80)
-        self.logger.info("Step 3: 노이즈 컨텍스트 생성")
-        self.logger.info("=" * 80)
+        print("=" * 80)
+        print("노이즈 컨텍스트 생성")
+        print("=" * 80)
         
         noise_dfs = {}
         
         # 1. 무관한 법률 조항
-        self.logger.info("\n[1/4] 무관한 법률 조항 생성")
-        unrelated_contexts = self.noise_generator.generate_unrelated_legal(self.config.num_unrelated_contexts)
+        print("\n[1/4] 무관한 법률 조항 생성")
+
+        unrelated_contexts = generate_unrelated_legal(self.config.num_unrelated_contexts)
+
         noise_dfs['unrelated_legal'] = pd.DataFrame({'context': unrelated_contexts})
         
         output_file = self.output_path / f'unrelated_contexts_{self.timestamp}.csv'
-        noise_dfs['unrelated_legal'].to_csv(output_file)
-        self.logger.info(f"✓ 저장: {output_file}")
+        noise_dfs['unrelated_legal'].to_csv(output_file, index_label='id')
+
+        print(f"✓ 저장: {output_file}")
         
         # 2. 유사 도메인 (샘플링하여 생성)
-        self.logger.info("\n[2/4] 유사 도메인 노이즈 생성")
+        print("\n[2/4] 유사 도메인 노이즈 생성")
         sample_size = min(20, len(base_df))
         similar_contexts = []
         
         for idx, row in base_df.head(sample_size).iterrows():
-            self.logger.info(f"  진행: {idx+1}/{sample_size}")
-            try:
-                similar = self.noise_generator.generate_similar_domain(row['context'])
-                similar_contexts.append(similar)
-            except Exception as e:
-                self.logger.error(f"  생성 실패: {e}")
-                similar_contexts.append("")
-        
+            print(f"  진행: {idx+1}/{sample_size}")
+
+            similar = generate_similar_domain(row['context'])
+            print(similar)
+            similar_contexts.append(similar)
+
         noise_dfs['similar_domain'] = pd.DataFrame({'context': similar_contexts})
         
         output_file = self.output_path / f'similar_domain_contexts_{self.timestamp}.csv'
-        noise_dfs['similar_domain'].to_csv(output_file)
-        self.logger.info(f"✓ 저장: {output_file}")
+        noise_dfs['similar_domain'].to_csv(output_file, index_label='id')
+        print(f"✓ 저장: {output_file}")
         
         # 3. 모순 정보 (샘플링하여 생성)
-        self.logger.info("\n[3/4] 모순 정보 생성")
+        print("\n[3/4] 모순 정보 생성")
         contradictory_contexts = []
         
         for idx, row in base_df.head(sample_size).iterrows():
-            self.logger.info(f"  진행: {idx+1}/{sample_size}")
-            try:
-                contradictory = self.noise_generator.generate_contradictory(
-                    row['context'], row['answer']
-                )
-                contradictory_contexts.append(contradictory)
-            except Exception as e:
-                self.logger.error(f"  생성 실패: {e}")
-                contradictory_contexts.append("")
-        
+            print(f"  진행: {idx+1}/{sample_size}")
+
+            contradictory = generate_contradictory(row['context'], row['answer'])
+            print(contradictory)
+            contradictory_contexts.append(contradictory)
+
         noise_dfs['contradictory'] = pd.DataFrame({'context': contradictory_contexts})
         
         output_file = self.output_path / f'contradictory_contexts_{self.timestamp}.csv'
-        noise_dfs['contradictory'].to_csv(output_file)
-        self.logger.info(f"✓ 저장: {output_file}")
+        noise_dfs['contradictory'].to_csv(output_file, index_label='id')
+        print(f"✓ 저장: {output_file}")
         
         # 4. 부분 겹침 (샘플링하여 생성)
-        self.logger.info("\n[4/4] 부분 겹침 정보 생성")
+        print("\n[4/4] 부분 겹침 정보 생성")
         partial_contexts = []
         
         for idx, row in base_df.head(sample_size).iterrows():
-            self.logger.info(f"  진행: {idx+1}/{sample_size}")
-            try:
-                partial = self.noise_generator.generate_partial_overlap(row['context'])
-                partial_contexts.append(partial)
-            except Exception as e:
-                self.logger.error(f"  생성 실패: {e}")
-                partial_contexts.append("")
+            print(f"  진행: {idx+1}/{sample_size}")
+            partial = generate_partial_overlap(row['context'])
+            print(partial)
         
         noise_dfs['partial_overlap'] = pd.DataFrame({'context': partial_contexts})
-        
+    
         output_file = self.output_path / f'partial_overlap_contexts_{self.timestamp}.csv'
-        noise_dfs['partial_overlap'].to_csv(output_file)
-        self.logger.info(f"✓ 저장: {output_file}")
+        noise_dfs['partial_overlap'].to_csv(output_file, index_label='id')
+
+        print(f"✓ 저장: {output_file}")
         
         return noise_dfs
     
     def create_noisy_datasets(self, base_df: pd.DataFrame, shuffled_english_df: pd.DataFrame, noise_dfs: Dict[str, pd.DataFrame]) -> List[pd.DataFrame]:
         """노이즈가 추가된 데이터셋 생성"""
-        self.logger.info("=" * 80)
-        self.logger.info("Step 4: 노이즈 데이터셋 생성")
-        self.logger.info("=" * 80)
+        print("=" * 80)
+        print("노이즈 데이터셋 생성")
+        print("=" * 80)
         
         datasets = []
         
         for difficulty in self.config.difficulty_levels:
-            self.logger.info(f"\n난이도: {difficulty.name.upper()}")
-            self.logger.info(f"  설명: {difficulty.description}")
+            print(f"\n난이도: {difficulty.name.upper()}")
+            print(f"  설명: {difficulty.description}")
             
             for position in difficulty.positions:
-                self.logger.info(f"  위치 전략: {position.value}")
+                print(f"  위치 전략: {position.value}")
                 
                 dataset_rows = []
                 
@@ -637,16 +548,16 @@ class InferenceBenchmarkPipeline:
                 
                 # 저장
                 output_file = self.output_path / f'noisy_dataset_{difficulty.name}_{position.value}_{self.timestamp}.csv'
-                dataset_df.to_csv(output_file)
-                self.logger.info(f"  ✓ 저장: {output_file}")
+                dataset_df.to_csv(output_file, index=False)
+                print(f"  ✓ 저장: {output_file}")
         
         return datasets
     
     def create_evaluation_summary(self, datasets: List[pd.DataFrame]) -> pd.DataFrame:
         """평가 요약 데이터셋 생성"""
-        self.logger.info("=" * 80)
-        self.logger.info("Step 5: 평가 요약 생성")
-        self.logger.info("=" * 80)
+        print("=" * 80)
+        print("평가 요약 생성")
+        print("=" * 80)
         
         summary_rows = []
         
@@ -672,52 +583,46 @@ class InferenceBenchmarkPipeline:
         
         output_file = self.output_path / f'evaluation_summary_{self.timestamp}.csv'
         summary_df.to_csv(output_file, index=True, index_label='id')
-        self.logger.info(f"✓ 요약 저장: {output_file}")
+        print(f"✓ 요약 저장: {output_file}")
         
         return summary_df
     
     def run(self) -> Dict:
         """전체 파이프라인 실행"""
-        self.logger.info("=" * 80)
-        self.logger.info("LLM 추론 능력 평가 파이프라인 시작")
-        self.logger.info(f"시작 시간: {pd.Timestamp.now(tz='Asia/Seoul')}")
-        self.logger.info("=" * 80)
+        print("=" * 80)
+        print("LLM 추론 능력 평가 파이프라인 시작")
+        print(f"시작 시간: {pd.Timestamp.now(tz='Asia/Seoul')}")
+        print("=" * 80)
         
-        try:
-            # Step 1: 데이터셋 준비
-            base_df = pd.read_csv(self.config.base_context_file)
+        #  데이터셋 준비
+        base_df = pd.read_csv(self.config.base_context_file, index_col='id')
+        
+        # 영문 번역 및 순서 섞기
+        shuffled_english_df = self.shuffled_english_contexts(base_df)
+        
+        # 노이즈 생성
+        noise_dfs = self.generate_noise_contexts(base_df)
+        
+        # 노이즈 데이터셋 생성
+        datasets = self.create_noisy_datasets(base_df, shuffled_english_df, noise_dfs)
+        
+        # 평가 요약
+        summary_df = self.create_evaluation_summary(datasets)
+        
+        print("=" * 80)
+        print("파이프라인 완료!")
+        print(f"종료 시간: {pd.Timestamp.now(tz='Asia/Seoul')}")
+        print(f"출력 디렉토리: {self.output_path}")
+        print("=" * 80)
+        
+        return {
+            'base_df': base_df,
+            'english_df': shuffled_english_df,
+            'noise_dfs': noise_dfs,
+            'datasets': datasets,
+            'summary_df': summary_df
+        }
             
-            # Step 2: 영문 번역
-            shuffled_english_df = self.shuffled_english_contexts(base_df)
-            
-            # Step 3: 노이즈 생성
-            noise_dfs = self.generate_noise_contexts(base_df)
-            
-            # Step 4: 노이즈 데이터셋 생성
-            datasets = self.create_noisy_datasets(base_df, shuffled_english_df, noise_dfs)
-            
-            # Step 5: 평가 요약
-            summary_df = self.create_evaluation_summary(datasets)
-            
-            self.logger.info("=" * 80)
-            self.logger.info("파이프라인 완료!")
-            self.logger.info(f"종료 시간: {pd.Timestamp.now(tz='Asia/Seoul')}")
-            self.logger.info(f"출력 디렉토리: {self.output_path}")
-            self.logger.info("=" * 80)
-            
-            return {
-                'base_df': base_df,
-                'english_df': shuffled_english_df,
-                'noise_dfs': noise_dfs,
-                'datasets': datasets,
-                'summary_df': summary_df
-            }
-            
-        except Exception as e:
-            self.logger.error(f"파이프라인 실패: {e}")
-            raise
-
-
 # ==================== 실행 예제 ====================
 
 # 설정
