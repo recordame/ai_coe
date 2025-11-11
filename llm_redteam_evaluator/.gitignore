@@ -1,5 +1,4 @@
-inference_benchmark/output/
-threat_benchmark/output/
+.env
 __pycache__/
 *.pyc
 *.pyo
