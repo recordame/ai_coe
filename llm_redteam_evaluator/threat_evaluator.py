@@ -1,8 +1,9 @@
-from typing import Dict, Any, List, Optional
 from datetime import datetime
 import json
+from typing import Any, Dict, List, Optional
+
+from evaluators import SemanticEvaluator, SyntacticEvaluator
 from utils.openai_client import OpenAIClient
-from evaluators import SyntacticEvaluator, SemanticEvaluator
 
 
 class ThreatEvaluator:
@@ -239,18 +240,15 @@ class ThreatEvaluator:
         report.append("=" * 80)
 
         return "\n".join(report)
-        
-        return "\n".join(report)
     
     def save_report(self, evaluation_result: Dict[str, Any], filename: str):
         report_text = self.generate_report(evaluation_result)
         
-        print(report_text)
-        # with open(f"./{filename}.txt", "w", encoding="utf-8") as f:
-        #     f.write(report_text)
+        with open(f"./{filename}.txt", "w", encoding="utf-8") as f:
+            f.write(report_text)
         
-        # with open(f"./{filename}.json", "w", encoding="utf-8") as f:
-        #     json.dump(evaluation_result, f, ensure_ascii=False, indent=2)
+        with open(f"./{filename}.json", "w", encoding="utf-8") as f:
+            json.dump(evaluation_result, f, ensure_ascii=False, indent=2)
         
         print(f"\n보고서 저장 완료:")
         print(f"  - {filename}.txt")

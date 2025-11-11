@@ -11,12 +11,17 @@ class OpenAIClient:
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.model = model or os.getenv("OPENAI_MODEL")
         self.base_url = os.getenv("BASE_URL")
-        
+
         if not self.api_key:
             raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY environment variable.")
-        
-        self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
-    
+
+        # Use the default OpenAI client with a configured timeout
+        self.client = OpenAI(
+            api_key=self.api_key,
+            base_url=self.base_url,
+            timeout=120.0
+        )
+
     def chat_completion(
         self,
         messages: list[dict],
