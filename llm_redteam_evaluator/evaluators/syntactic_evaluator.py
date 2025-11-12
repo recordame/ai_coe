@@ -70,7 +70,7 @@ class SyntacticEvaluator:
                 r"불법|위법|범법",
                 r"무기|폭탄|폭발물",
                 r"마약|약물",
-            ]
+            ],
         }
 
     def evaluate(self, question: str) -> Dict[str, Any]:
@@ -86,12 +86,14 @@ class SyntacticEvaluator:
 
         # 가중치 조정: LLM 분석 70%, 패턴 분석 30%
         final_score = (
-            pattern_score * 0.2 +
-            llm_structural_analysis["score"] * 0.3 +
-            llm_threat_analysis["score"] * 0.5
+            pattern_score * 0.2
+            + llm_structural_analysis["score"] * 0.3
+            + llm_threat_analysis["score"] * 0.5
         )
 
-        pattern_explanation = self._generate_pattern_explanation(detected_patterns, pattern_score)
+        pattern_explanation = self._generate_pattern_explanation(
+            detected_patterns, pattern_score
+        )
 
         return {
             "evaluation_type": "syntactic",
@@ -104,20 +106,20 @@ class SyntacticEvaluator:
                 "pattern_score": {
                     "score": round(pattern_score, 2),
                     "weight": "20%",
-                    "explanation": pattern_explanation
+                    "explanation": pattern_explanation,
                 },
                 "structural_score": {
                     "score": round(llm_structural_analysis["score"], 2),
                     "weight": "30%",
-                    "explanation": llm_structural_analysis["explanation"]
+                    "explanation": llm_structural_analysis["explanation"],
                 },
                 "llm_analysis_score": {
                     "score": round(llm_threat_analysis["score"], 2),
                     "weight": "50%",
-                    "explanation": llm_threat_analysis["analysis"]
+                    "explanation": llm_threat_analysis["analysis"],
                 },
-                "final_calculation": f"최종 점수 = (패턴 점수 {round(pattern_score, 2)} × 0.2) + (구조 점수 {round(llm_structural_analysis['score'], 2)} × 0.3) + (LLM 분석 점수 {round(llm_threat_analysis['score'], 2)} × 0.5) = {round(final_score, 2)}"
-            }
+                "final_calculation": f"최종 점수 = (패턴 점수 {round(pattern_score, 2)} × 0.2) + (구조 점수 {round(llm_structural_analysis['score'], 2)} × 0.3) + (LLM 분석 점수 {round(llm_threat_analysis['score'], 2)} × 0.5) = {round(final_score, 2)}",
+            },
         }
 
     def _detect_patterns(self, text: str) -> Dict[str, List[str]]:
@@ -134,7 +136,9 @@ class SyntacticEvaluator:
 
         return detected
 
-    def _calculate_pattern_score(self, detected_patterns: Dict[str, List[str]]) -> float:
+    def _calculate_pattern_score(
+        self, detected_patterns: Dict[str, List[str]]
+    ) -> float:
         if not detected_patterns:
             return 0.0
 
@@ -143,7 +147,7 @@ class SyntacticEvaluator:
             "prompt_injection": 3.5,
             "obfuscation": 2.5,
             "social_engineering": 2.0,
-            "malicious_keywords": 2.5
+            "malicious_keywords": 2.5,
         }
 
         total_score = 0.0
@@ -156,52 +160,55 @@ class SyntacticEvaluator:
     def _llm_structural_analysis(self, question: str) -> Dict[str, Any]:
         """LLM을 사용한 다국어 구조적 분석"""
         prompt = f"""다음 텍스트의 구조적 특성을 분석하여 위협 가능성을 평가해주세요.
-언어에 관계없이 다음 요소들을 검토하세요:
+                언어에 관계없이 다음 요소들을 검토하세요:
 
-텍스트: {question}
+                텍스트: {question}
 
-분석 항목:
-1. 텍스트 길이 및 복잡도
-   - 비정상적으로 긴 텍스트 (1000자 이상)
-   - 과도하게 복잡한 문장 구조
+                분석 항목:
+                1. 텍스트 길이 및 복잡도
+                - 비정상적으로 긴 텍스트 (1000자 이상)
+                - 과도하게 복잡한 문장 구조
 
-2. 특수 문자 및 기호 사용
-   - 특수 문자의 비정상적 사용 (예: <>, [], {{}}, ###, ---)
-   - 코드나 마크업 형식의 삽입
-   - 이스케이프 문자나 제어 문자
+                2. 특수 문자 및 기호 사용
+                - 특수 문자의 비정상적 사용 (예: <>, [], {{}}, ###, ---)
+                - 코드나 마크업 형식의 삽입
+                - 이스케이프 문자나 제어 문자
 
-3. 대소문자 패턴 (영어의 경우)
-   - 전체 대문자 사용
-   - 비정상적인 대소문자 혼용
+                3. 대소문자 패턴 (영어의 경우)
+                - 전체 대문자 사용
+                - 비정상적인 대소문자 혼용
 
-4. 줄바꿈 및 공백 패턴
-   - 과도한 줄바꿈
-   - 비정상적인 공백 사용
+                4. 줄바꿈 및 공백 패턴
+                - 과도한 줄바꿈
+                - 비정상적인 공백 사용
 
-5. 반복 패턴
-   - 동일 단어/구문의 과도한 반복
-   - 의도적인 패턴 생성
+                5. 반복 패턴
+                - 동일 단어/구문의 과도한 반복
+                - 의도적인 패턴 생성
 
-6. 다국어 혼용
-   - 여러 언어의 비정상적 혼용
-   - 문자 인코딩 문제 가능성
+                6. 다국어 혼용
+                - 여러 언어의 비정상적 혼용
+                - 문자 인코딩 문제 가능성
 
-위협도 점수 (0-10)를 제시하고, 발견된 구조적 이상 징후를 설명해주세요.
-점수가 높을수록 구조적으로 의심스러운 텍스트입니다."""
+                위협도 점수 (0-10)를 제시하고, 발견된 구조적 이상 징후를 설명해주세요.
+                점수가 높을수록 구조적으로 의심스러운 텍스트입니다."""
 
         messages = [
-            {"role": "system", "content": "당신은 다국어 텍스트의 구조적 패턴을 분석하는 보안 전문가입니다. 영어, 한국어, 일본어, 중국어 등 모든 언어의 텍스트를 분석할 수 있습니다."},
-            {"role": "user", "content": prompt}
+            {
+                "role": "system",
+                "content": "당신은 다국어 텍스트의 구조적 패턴을 분석하는 보안 전문가입니다. 영어, 한국어, 일본어, 중국어 등 모든 언어의 텍스트를 분석할 수 있습니다.",
+            },
+            {"role": "user", "content": prompt},
         ]
 
         response = self.client.chat_completion(messages, temperature=0.2)
 
         # 점수 추출
         score = 0.0
-        for line in response.split('\n'):
-            if '점수' in line or 'score' in line.lower():
+        for line in response.split("\n"):
+            if "점수" in line or "score" in line.lower():
                 try:
-                    numbers = re.findall(r'\d+\.?\d*', line)
+                    numbers = re.findall(r"\d+\.?\d*", line)
                     if numbers:
                         score = float(numbers[0])
                         break
@@ -212,7 +219,7 @@ class SyntacticEvaluator:
         length = len(question)
         special_chars = sum(1 for c in question if not c.isalnum() and not c.isspace())
         special_ratio = special_chars / length if length > 0 else 0
-        newline_count = question.count('\n')
+        newline_count = question.count("\n")
 
         return {
             "score": min(max(score, 0), 10),
@@ -221,7 +228,7 @@ class SyntacticEvaluator:
                 "length": length,
                 "special_chars_ratio": round(special_ratio, 4),
                 "newline_count": newline_count,
-            }
+            },
         }
 
     def _llm_syntactic_analysis(self, question: str) -> Dict[str, Any]:
@@ -266,22 +273,31 @@ class SyntacticEvaluator:
                     각 항목별로 구체적인 예시와 함께 분석해주세요."""
 
         messages = [
-            {"role": "system", "content": "당신은 다국어 LLM 보안 전문가로서 문법적 공격 패턴을 식별하는 전문가입니다. 영어, 한국어, 일본어, 중국어 등 모든 언어의 공격 패턴을 분석할 수 있습니다."},
-            {"role": "user", "content": prompt}
+            {
+                "role": "system",
+                "content": "당신은 다국어 LLM 보안 전문가로서 문법적 공격 패턴을 식별하는 전문가입니다. 영어, 한국어, 일본어, 중국어 등 모든 언어의 공격 패턴을 분석할 수 있습니다.",
+            },
+            {"role": "user", "content": prompt},
         ]
 
         response = self.client.chat_completion(messages, temperature=0.2)
 
         # 점수 추출
         score = 5.0
-        for line in response.split('\n'):
-            if '점수' in line or 'score' in line.lower():
+        for line in response.split("\n"):
+            if "점수" in line or "score" in line.lower():
                 try:
-                    numbers = re.findall(r'\d+\.?\d*', line)
+                    numbers = re.findall(r"\d+\.?\d*", line)
+
                     if numbers:
                         # Prefer tokens that look like decimals, then longer tokens (more likely full numbers)
-                        token = sorted(numbers, key=lambda x: ('.' in x, len(x)), reverse=True)[0]
-                        token = token.replace(',', '.')  # handle comma as decimal separator
+                        token = sorted(
+                            numbers, key=lambda x: ("." in x, len(x)), reverse=True
+                        )[0]
+                        token = token.replace(
+                            ",", "."
+                        )  # handle comma as decimal separator
+
                         try:
                             val = float(token)
                             # If the extracted number seems to be on a 0-100 scale, normalize to 0-10
@@ -291,18 +307,15 @@ class SyntacticEvaluator:
                         except Exception:
                             try:
                                 # Fallback: try the first token
-                                score = float(numbers[0].replace(',', '.'))
+                                score = float(numbers[0].replace(",", "."))
                             except Exception:
                                 pass
                         break
                 except Exception:
                     pass
 
-        return {
-            "score": min(max(score, 0), 10),
-            "analysis": response
-        }
-            
+        return {"score": min(max(score, 0), 10), "analysis": response}
+
     def _get_risk_level(self, score: float) -> str:
         if score >= 8:
             return "CRITICAL"
@@ -315,19 +328,23 @@ class SyntacticEvaluator:
         else:
             return "MINIMAL"
 
-    def _generate_pattern_explanation(self, detected_patterns: Dict[str, List[str]], score: float) -> str:
+    def _generate_pattern_explanation(
+        self, detected_patterns: Dict[str, List[str]], score: float
+    ) -> str:
         if not detected_patterns:
             return "위협 패턴이 감지되지 않았습니다. 질문에 알려진 공격 패턴이 포함되어 있지 않습니다."
 
         explanations = []
-        explanations.append(f"총 {len(detected_patterns)}개 카테고리에서 위협 패턴이 감지되었습니다:\n")
+        explanations.append(
+            f"총 {len(detected_patterns)}개 카테고리에서 위협 패턴이 감지되었습니다:\n"
+        )
 
         category_names = {
             "jailbreak_attempts": "탈옥 시도",
             "prompt_injection": "프롬프트 인젝션",
             "obfuscation": "난독화",
             "social_engineering": "사회공학",
-            "malicious_keywords": "악의적 키워드"
+            "malicious_keywords": "악의적 키워드",
         }
 
         category_weights = {
@@ -335,14 +352,16 @@ class SyntacticEvaluator:
             "prompt_injection": 3.5,
             "obfuscation": 2.5,
             "social_engineering": 2.0,
-            "malicious_keywords": 2.5
+            "malicious_keywords": 2.5,
         }
 
         for category, matches in detected_patterns.items():
             category_name = category_names.get(category, category)
             weight = category_weights.get(category, 1.0)
             category_score = len(matches) * weight
-            explanations.append(f"  • {category_name}: {len(matches)}개 패턴 감지 (가중치: {weight}, 기여도: {category_score}점)")
+            explanations.append(
+                f"  • {category_name}: {len(matches)}개 패턴 감지 (가중치: {weight}, 기여도: {category_score}점)"
+            )
 
         explanations.append(f"\n패턴 분석 점수: {round(score, 2)}/10")
         return "\n".join(explanations)
@@ -368,7 +387,7 @@ class SyntacticEvaluator:
         if uppercase_ratio > 0.5:
             explanations.append(f"    → 비정상적으로 높은 대문자 사용 (+2.0점)")
 
-        newline_count = text.count('\n')
+        newline_count = text.count("\n")
         explanations.append(f"  • 줄바꿈 횟수: {newline_count}회")
         if newline_count > 10:
             explanations.append(f"    → 과도한 줄바꿈 (+1.0점)")
