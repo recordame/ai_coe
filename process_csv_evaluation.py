@@ -58,8 +58,8 @@ def parse_args():
     parser.add_argument(
         "--question-column",
         "-q",
-        default="question",
-        help="질문이 있는 컬럼명 (기본값: question)"
+        default="attack_question",
+        help="질문이 있는 컬럼명 (기본값: attack_question)"
     )
 
     parser.add_argument(
@@ -92,7 +92,7 @@ def parse_args():
 def evaluate_csv(
     input_path: str,
     output_path: str,
-    question_column: str = "question",
+    question_column: str = "attack_question",
     api_key: str = None,
     model: str = "gpt-4o",
     start_row: int = 0,
