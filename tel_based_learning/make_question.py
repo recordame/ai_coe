@@ -5,13 +5,14 @@ os.environ["VLLM_ATTENTION_BACKEND"] = "TRITON_ATTN_VLLM_V1"
 
 import argparse
 import json
-from datasets import load_dataset, Dataset
-from transformers import AutoTokenizer
-from tqdm import tqdm
-from vllm import LLM, SamplingParams
-from math import ceil
-from generation_prompts import PROMPTS
 import re
+from math import ceil
+
+from datasets import Dataset, load_dataset
+from generation_prompts import PROMPTS
+from tqdm import tqdm
+from transformers import AutoTokenizer
+from vllm import LLM, SamplingParams
 
 
 def main(args):
@@ -24,14 +25,16 @@ def main(args):
         tensor_parallel_size=4,
         gpu_memory_utilization=0.9,
     )
-    
+
     sampling_params = SamplingParams(max_tokens=4096, skip_special_tokens=False)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     # --- 2. 데이터셋 로드 ---
     print(f"데이터셋 로드 중...")
 
-    dataset = load_dataset("genloop/bloomberg_financial_news_120k", split="train").select(range(128))
+    dataset = load_dataset(
+        "genloop/bloomberg_financial_news_120k", split="train"
+    ).select(range(128))
 
     print(f"데이터셋 로드 완료. 총 {len(dataset)}개 처리 예정.")
     output_filename = f"results_{args.domain}.jsonl"
@@ -158,7 +161,9 @@ if __name__ == "__main__":
     parser.add_argument("--domain", type=str, required=True, help="dataset domain")
     parser.add_argument("--max_batch_size", type=int, required=True, help="batch_size")
     parser.add_argument("--lang", type=str, default="korean", help="lang")
-    parser.add_argument("--prompt_type", type=str, default="qa_pair_with_re", help="lang")
+    parser.add_argument(
+        "--prompt_type", type=str, default="qa_pair_with_re", help="lang"
+    )
 
     args = parser.parse_args()
     main(args)
