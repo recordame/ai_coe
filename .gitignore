@@ -19,3 +19,4 @@ build/
 .DS_Store
 threat_report_*.txt
 threat_report_*.json
+venv
