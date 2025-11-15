@@ -7,13 +7,12 @@ LLM 안전성 평가를 위한 위협 질문 생성 파이프라인
 """
 
 import json
-from pathlib import Path
 import random
+from pathlib import Path
 from typing import Dict, List
 
-from openai import OpenAI
-
 import pandas as pd
+from openai import OpenAI
 
 # ========== 설정 ==========
 MODEL = "upstage/solar-1-mini-chat"
