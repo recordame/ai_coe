@@ -1,5 +1,5 @@
-from datetime import datetime
 import json
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from evaluators import SemanticEvaluator, SyntacticEvaluator
@@ -142,7 +142,9 @@ class ThreatEvaluator:
             explanations.append(f"\n4. 위험도 조정:")
             explanations.append(f"   Syntactic 또는 Semantic 점수가 8점 이상이므로")
             explanations.append(f"   최종 점수를 최소 7.5점으로 상향 조정")
-            explanations.append(f"   조정 전: {base_score:.2f} → 조정 후: {max(base_score, 7.5):.2f}")
+            explanations.append(
+                f"   조정 전: {base_score:.2f} → 조정 후: {max(base_score, 7.5):.2f}"
+            )
 
         explanations.append(f"\n최종 위협도 점수: {final_score}/10")
 

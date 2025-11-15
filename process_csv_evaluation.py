@@ -41,50 +41,30 @@ def parse_args():
         description="CSV 파일의 질문을 읽어서 위협도 평가를 수행합니다."
     )
 
-    parser.add_argument(
-        "--input",
-        "-i",
-        required=True,
-        help="입력 CSV 파일 경로"
-    )
+    parser.add_argument("--input", "-i", required=True, help="입력 CSV 파일 경로")
 
-    parser.add_argument(
-        "--output",
-        "-o",
-        required=True,
-        help="출력 CSV 파일 경로"
-    )
+    parser.add_argument("--output", "-o", required=True, help="출력 CSV 파일 경로")
 
     parser.add_argument(
         "--question-column",
         "-q",
         default="attack_question",
-        help="질문이 있는 컬럼명 (기본값: attack_question)"
+        help="질문이 있는 컬럼명 (기본값: attack_question)",
     )
 
     parser.add_argument(
-        "--api-key",
-        help="OpenAI API 키 (환경변수 OPENAI_API_KEY 사용 가능)"
+        "--api-key", help="OpenAI API 키 (환경변수 OPENAI_API_KEY 사용 가능)"
     )
 
     parser.add_argument(
-        "--model",
-        default="gpt-4o",
-        help="OpenAI 모델명 (기본값: gpt-4o)"
+        "--model", default="gpt-4o", help="OpenAI 모델명 (기본값: gpt-4o)"
     )
 
     parser.add_argument(
-        "--start-row",
-        type=int,
-        default=0,
-        help="시작 행 번호 (기본값: 0)"
+        "--start-row", type=int, default=0, help="시작 행 번호 (기본값: 0)"
     )
 
-    parser.add_argument(
-        "--end-row",
-        type=int,
-        help="종료 행 번호 (기본값: 전체)"
-    )
+    parser.add_argument("--end-row", type=int, help="종료 행 번호 (기본값: 전체)")
 
     return parser.parse_args()
 
@@ -96,7 +76,7 @@ def evaluate_csv(
     api_key: str = None,
     model: str = "gpt-4o",
     start_row: int = 0,
-    end_row: int = None
+    end_row: int = None,
 ):
     """
     CSV 파일의 질문들을 평가하고 결과를 저장합니다.
@@ -162,7 +142,7 @@ def evaluate_csv(
         "semantic_score",
         "semantic_risk_level",
         "recommendations",
-        "evaluation_timestamp"
+        "evaluation_timestamp",
     ]
 
     for col in result_columns:
@@ -191,10 +171,18 @@ def evaluate_csv(
             # 결과 저장
             df.loc[idx, "threat_score"] = result["final_threat_score"]
             df.loc[idx, "risk_level"] = result["risk_level"]
-            df.loc[idx, "syntactic_score"] = result["syntactic_evaluation"]["threat_score"]
-            df.loc[idx, "syntactic_risk_level"] = result["syntactic_evaluation"]["risk_level"]
-            df.loc[idx, "semantic_score"] = result["semantic_evaluation"]["threat_score"]
-            df.loc[idx, "semantic_risk_level"] = result["semantic_evaluation"]["risk_level"]
+            df.loc[idx, "syntactic_score"] = result["syntactic_evaluation"][
+                "threat_score"
+            ]
+            df.loc[idx, "syntactic_risk_level"] = result["syntactic_evaluation"][
+                "risk_level"
+            ]
+            df.loc[idx, "semantic_score"] = result["semantic_evaluation"][
+                "threat_score"
+            ]
+            df.loc[idx, "semantic_risk_level"] = result["semantic_evaluation"][
+                "risk_level"
+            ]
             df.loc[idx, "recommendations"] = " | ".join(result["recommendations"])
             df.loc[idx, "evaluation_timestamp"] = result["timestamp"]
 
@@ -202,7 +190,9 @@ def evaluate_csv(
 
             # 진행 상황 출력
             if (idx - start_row + 1) % 10 == 0:
-                print(f"\n✅ 진행: {idx - start_row + 1}/{end_row - start_row} 완료 (성공: {success_count}, 오류: {error_count})")
+                print(
+                    f"\n✅ 진행: {idx - start_row + 1}/{end_row - start_row} 완료 (성공: {success_count}, 오류: {error_count})"
+                )
 
         except Exception as e:
             error_count += 1
@@ -240,12 +230,12 @@ def evaluate_csv(
 
     if success_count > 0:
         print("\n위험 수준 분포:")
-        risk_level_counts = df.loc[start_row:end_row-1, "risk_level"].value_counts()
+        risk_level_counts = df.loc[start_row : end_row - 1, "risk_level"].value_counts()
         for level, count in risk_level_counts.items():
             print(f"  {level}: {count}개 ({count/success_count*100:.1f}%)")
 
         print("\n평균 점수:")
-        valid_scores = df.loc[start_row:end_row-1, "threat_score"]
+        valid_scores = df.loc[start_row : end_row - 1, "threat_score"]
         valid_scores = valid_scores[valid_scores >= 0]
         if len(valid_scores) > 0:
             print(f"  최종 위협도: {valid_scores.mean():.2f}")
@@ -276,7 +266,7 @@ def main():
         api_key=api_key,
         model=args.model,
         start_row=args.start_row,
-        end_row=args.end_row
+        end_row=args.end_row,
     )
 
 
