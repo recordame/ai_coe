@@ -2,6 +2,8 @@ import argparse
 import json
 import re
 from math import ceil
+import os
+import py7zr
 
 from datasets import Dataset, load_dataset
 from generation_prompts import PROMPTS
@@ -12,19 +14,21 @@ client = OpenAI(
     api_key="up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc", base_url="https://api.upstage.ai/v1"
 )
 
-
 def main(args):
-    # --- 1. OpenAI 클라이언트 설정 ---
     model_name = args.model_name
-
     PROMPT = PROMPTS[args.prompt_type][args.lang]
 
-    # --- 2. 데이터셋 로드 ---
-    print(f"데이터셋 로드 중...")
+    csv_path = "../bloomberg_financial_news_120k.csv"
+    archive_path = "../bloomberg_financial_news_120k.csv.7z"
 
-    dataset = load_dataset(
-        "csv", data_files="../bloomberg_financial_news_120k.csv", split="train"
-    ).select(range(2))
+    if not os.path.exists(csv_path) and os.path.exists(archive_path):
+        print(f"압축 파일 해제 중...")
+        with py7zr.SevenZipFile(archive_path, mode='r') as archive:
+            archive.extractall(path="..")
+        print(f"압축 해제 완료.")
+
+    print(f"데이터셋 로드 중...")
+    dataset = load_dataset("csv", data_files=csv_path, split="train").select(range(2))
 
     print(f"데이터셋 로드 완료. 총 {len(dataset)}개 처리 예정.")
     output_filename = f"results_{args.domain}.json"
@@ -57,7 +61,6 @@ def main(args):
         ):
             messages_list = batch_chat_template(batch, args)
 
-            # OpenAI API를 사용하여 각 메시지에 대해 생성
             for idx, messages in zip(batch["Headline"], messages_list):
                 try:
                     response = client.chat.completions.create(
@@ -100,13 +103,10 @@ def main(args):
     def parsing_q_list(row):
         generated_text = row["generated_text"]
         qa_list = generated_text.get("questions", [])
-
         return {"qa_list": json.dumps(qa_list, ensure_ascii=False, indent=2)}
 
     ds_parsed = ds_filtered.map(parsing_q_list, num_proc=32)
-
     ds_parsed.save_to_disk("temp")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAI Inference Script")
