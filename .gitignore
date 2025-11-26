@@ -21,3 +21,4 @@ threat_report_*.txt
 threat_report_*.json
 venv
 bloomberg_financial_news_120k.csv
+temp

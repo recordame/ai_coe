@@ -1,56 +1,69 @@
 import argparse
 import json
-import re
-from math import ceil
 import os
-import py7zr
+from math import ceil
 
+import pandas as pd
+import py7zr
 from datasets import Dataset, load_dataset
 from generation_prompts import PROMPTS
-from tqdm import tqdm
 from openai import OpenAI
+from tqdm import tqdm
 
 client = OpenAI(
     api_key="up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc", base_url="https://api.upstage.ai/v1"
 )
 
+# 아래 전문가 레벨을 조절하여 질문 생성
+# default: 초기 프롬프트
+# tuned: 금융관련 역할을 더 강화시킨 것
+expert_level = "tuned"
+
+
+def batch_chat_template(batch, prompt, args):
+    messages = []
+    system_prompt = prompt["system"][expert_level].format(domain_name=args.domain)
+
+    for article in batch["Article"]:
+        print(article)
+        user_prompt = prompt["user"].format(domain_name=args.domain, input_text=article)
+
+        messages.append(
+            [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ]
+        )
+
+    return messages
+
+
+def parsing_q_list(row):
+    generated_text = row["generated_text"]
+    qa_list = generated_text.get("questions", [])
+
+    return {"qa_list": json.dumps(qa_list, ensure_ascii=False, indent=2)}
+
+
 def main(args):
     model_name = args.model_name
-    PROMPT = PROMPTS[args.prompt_type][args.lang]
+    prompt = PROMPTS[args.prompt_type][args.lang]
 
     csv_path = "../bloomberg_financial_news_120k.csv"
     archive_path = "../bloomberg_financial_news_120k.csv.7z"
 
     if not os.path.exists(csv_path) and os.path.exists(archive_path):
         print(f"압축 파일 해제 중...")
-        with py7zr.SevenZipFile(archive_path, mode='r') as archive:
+        with py7zr.SevenZipFile(archive_path, mode="r") as archive:
             archive.extractall(path="..")
         print(f"압축 해제 완료.")
 
     print(f"데이터셋 로드 중...")
-    dataset = load_dataset("csv", data_files=csv_path, split="train").select(range(2))
-
+    dataset = load_dataset("csv", data_files=csv_path, split="train").select(range(1))
     print(f"데이터셋 로드 완료. 총 {len(dataset)}개 처리 예정.")
-    output_filename = f"results_{args.domain}.json"
+
+    output_filename = f'results_{expert_level}_{args.domain}_{pd.Timestamp.now(tz="Asia/Seoul").strftime("%Y%m%d_%H%M%S")}.json'
     processed_dataset = dataset
-
-    def batch_chat_template(batch, args):
-        messages = []
-        system_prompt = PROMPT["system"].format(domain_name=args.domain)
-
-        for text in batch["Article"]:
-            user_prompt = PROMPT["user"].format(
-                domain_name=args.domain, input_text=text
-            )
-
-            messages.append(
-                [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ]
-            )
-
-        return messages
 
     formatted_msg = []
 
@@ -59,18 +72,20 @@ def main(args):
             processed_dataset.iter(batch_size=args.max_batch_size),
             total=ceil(len(processed_dataset) / args.max_batch_size),
         ):
-            messages_list = batch_chat_template(batch, args)
+            messages_list = batch_chat_template(batch, prompt, args)
 
-            for idx, messages in zip(batch["Headline"], messages_list):
+            for headline, messages in zip(batch["Headline"], messages_list):
                 try:
                     response = client.chat.completions.create(
                         model=model_name,
                         messages=messages,
                         max_tokens=4096,
-                        temperature=0.7,
+                        temperature=0.1,
                     )
+
                     generated_text = response.choices[0].message.content
 
+                    # 답변이 json형식이 아닌 경우, json 응답을 내놓을 때 까지 반복
                     try:
                         json.loads(generated_text)
                     except:
@@ -78,12 +93,12 @@ def main(args):
 
                     formatted_msg.append(
                         {
-                            "Headline": idx,
+                            "Headline": headline,
                             "generated_text": json.loads(generated_text),
                         }
                     )
                 except Exception as e:
-                    print(f"Error processing {idx}: {e}")
+                    print(f"Error processing '{headline[:30]}...': {e}")
                     continue
 
         json.dump(formatted_msg, f, ensure_ascii=False, indent=2)
@@ -93,20 +108,16 @@ def main(args):
 
     new_files = []
 
-    for text, file in zip(dataset["Article"], files):
-        file["Article"] = text
+    for Article, file in zip(dataset["Article"], files):
+        file["Article"] = Article
         new_files.append(file)
 
     files = new_files
     ds_filtered = Dataset.from_list(files)
 
-    def parsing_q_list(row):
-        generated_text = row["generated_text"]
-        qa_list = generated_text.get("questions", [])
-        return {"qa_list": json.dumps(qa_list, ensure_ascii=False, indent=2)}
-
     ds_parsed = ds_filtered.map(parsing_q_list, num_proc=32)
     ds_parsed.save_to_disk("temp")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAI Inference Script")
