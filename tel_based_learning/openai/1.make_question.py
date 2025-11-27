@@ -13,15 +13,17 @@ from tqdm import tqdm
 client = OpenAI(
     api_key="up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc", base_url="https://api.upstage.ai/v1"
 )
+model = "upstage/solar-1-mini-chat"
 
 # 아래 전문가 레벨을 조절하여 질문 생성
 # base: 일반사람
 # low:  초급인력 (퍼플렉시티 기준: 중급 상단~고급 초입)
 # mid:  중급인력 (고급 독해자)
 # high: 고급인력 (최상위 고급, 즉 전문가 수준)
-expert_levels = ["base", "low", "mid", "high"]
-num_of_data = 4
+expert_levels = ["low", "mid", "high"]
+num_of_data = 10
 max_bath = 1
+
 
 def batch_chat_template(batch, prompt, expert_level, args):
     messages = []
@@ -60,11 +62,13 @@ def main(args):
         print(f"압축 해제 완료.")
 
     print(f"데이터셋 로드 중...")
-    dataset = load_dataset("csv", data_files=csv_path, split="train").select(range(num_of_data))
+    dataset = load_dataset("csv", data_files=csv_path, split="train").select(
+        range(num_of_data)
+    )
     print(f"데이터셋 로드 완료. 총 {len(dataset)}개 처리 예정.")
 
     for expert_level in expert_levels:
-        output_filename = f'results_{args.domain}_{expert_level}.json' #_{pd.Timestamp.now(tz="Asia/Seoul").strftime("%Y%m%d_%H%M%S")}
+        output_filename = f"sample_questions/{args.domain}_{expert_level}.json"  # _{pd.Timestamp.now(tz="Asia/Seoul").strftime("%Y%m%d_%H%M%S")}
         processed_dataset = dataset
 
         formatted_msg = []
@@ -73,16 +77,19 @@ def main(args):
             for batch in tqdm(
                 processed_dataset.iter(batch_size=args.max_batch_size),
                 total=ceil(len(processed_dataset) / args.max_batch_size),
+                desc=f"전문가 레벨 {expert_level} 질문 생성중",
             ):
                 messages_list = batch_chat_template(batch, prompt, expert_level, args)
 
-                for headline, article, messages in zip(batch["Headline"], batch["Article"], messages_list):
+                for headline, article, messages in zip(
+                    batch["Headline"], batch["Article"], messages_list
+                ):
                     try:
                         response = client.chat.completions.create(
                             model=model_name,
                             messages=messages,
                             max_tokens=4096,
-                            temperature=0.7,
+                            temperature=0.1,
                         )
 
                         questions = response.choices[0].message.content
@@ -116,24 +123,22 @@ def main(args):
 
         # files = new_files
 
-        # ds_filtered = Dataset.from_list(files)   
+        # ds_filtered = Dataset.from_list(files)
         # ds_parsed = ds_filtered.map(parsing_q_list, num_proc=32)
         # ds_parsed.save_to_disk("temp")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAI Inference Script")
     parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
-    parser.add_argument("--max_batch_size", type=int, default=max_bath, help="batch_size")
+    parser.add_argument(
+        "--max_batch_size", type=int, default=max_bath, help="batch_size"
+    )
     parser.add_argument("--lang", type=str, default="korean", help="lang")
     parser.add_argument(
         "--prompt_type", type=str, default="qa_pair_with_re", help="prompt type"
     )
-    parser.add_argument(
-        "--model_name",
-        type=str,
-        default="upstage/solar-1-mini-chat",
-        help="upstage/solar-1-mini-chat",
-    )
+    parser.add_argument("--model_name", type=str, default=model)
 
     args = parser.parse_args()
     main(args)
