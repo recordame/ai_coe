@@ -3,9 +3,8 @@ import json
 import os
 from math import ceil
 
-import pandas as pd
 import py7zr
-from datasets import Dataset, load_dataset
+from datasets import load_dataset
 from generation_prompts import PROMPTS
 from openai import OpenAI
 from tqdm import tqdm

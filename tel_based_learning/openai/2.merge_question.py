@@ -1,9 +1,4 @@
 import json
-import os
-from pathlib import Path
-
-from openai import OpenAI
-from tqdm import tqdm
 
 
 def merge_finance_question():
