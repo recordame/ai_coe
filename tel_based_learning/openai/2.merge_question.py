@@ -1,18 +1,19 @@
-import json
+import argparse
+
+import utils
 
 
-def merge_finance_question():
+
+def merge_finance_question(args):
+
     # 전문가 레벨
     expert_levels = ["low", "mid", "high"]
 
     # 전문가별 질문 취합
     all_data = {}
     for level in expert_levels:
-        file_path = f"sample_questions/finance_{level}.json"
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            all_data[level] = json.load(f)
-
+        file_path = f"sample_questions/1.{args.domain}_{level}.jsonl"
+        all_data[level] = utils.load_jsonl_file(file_path)
         print(f"Loaded {file_path}: {len(all_data[level])} articles")
 
     # 병합된 결과를 담을 리스트
@@ -37,13 +38,18 @@ def merge_finance_question():
         merged_results.append(merged_article)
 
     # 병합된 결과 저장
-    output_path = "sample_questions/finance_merged.json"
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(merged_results, f, ensure_ascii=False, indent=2)
+    output_path = f"sample_questions/2.{args.domain}_merged.json"
+
+    utils.write_json_file(merged_results, output_path)
+    utils.write_jsonl_file(merged_results, output_path + "l")
 
     print(f"\n병합 {len(merged_results)} articles")
     print(f"병합 결과 저장: {output_path}")
 
 
 if __name__ == "__main__":
-    merge_finance_question()
+    parser = argparse.ArgumentParser(description="OpenAI Question Merge Script")
+    parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
+
+    args = parser.parse_args()
+    merge_finance_question(args)

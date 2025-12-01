@@ -1,7 +1,10 @@
+import argparse
 import json
-import os
-from openai import OpenAI
+
 from tqdm import tqdm
+
+from openai import OpenAI
+import utils
 
 # Solar API 설정
 client = OpenAI(
@@ -26,7 +29,7 @@ def create_judge_prompt(article, headline, reasoning_effort, questions_dict):
                 2. **mid**: {questions_dict.get('mid')}
                 3. **high**: {questions_dict.get('high')}
 
-                위 질문들 중에서 다음 기준으로 가장 우수한 질문을 선택하세요:
+                위 질문들 중에서 다음 기준으로 가장 우수한 질문을 선택하세요
                 1. 기사 내용과의 관련성
                 2. 질문의 금융 도메인의 적합성
                 3. 해당 추론 난이도에 적합한 깊이
@@ -51,7 +54,7 @@ def evaluate_questions(article_data):
     best_questions = []
 
     # 각 reasoning_effort 레벨에 대해 평가
-    for reasoning_effort in ["low", "medium", "high"]:
+    for reasoning_effort in ["low", "mid", "high"]:
         # 각 전문가 레벨의 질문 수집
         questions_dict = {}
 
@@ -115,15 +118,15 @@ def evaluate_questions(article_data):
     return {"headline": headline, "article": article, "best_questions": best_questions}
 
 
-def main():
+def main(args):
     # 입력 파일 경로
-    input_file = "sample_questions/finance_merged.json"
-    output_file = "sample_questions/finance_evaluated.json"
+    input_file = f"sample_questions/2.{args.domain}_merged.jsonl"
+    output_detail = f"sample_questions/3.{args.domain}_evaluated.json"
+    output_summary = f"sample_questions/3.{args.domain}_summary.json"
 
     # 입력 파일 로드
     print(f"입력 파일 로드 중: {input_file}")
-    with open(input_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    data = utils.load_jsonl_file(input_file)
 
     print(f"총 {len(data)}개의 기사를 평가합니다.")
 
@@ -135,19 +138,43 @@ def main():
         evaluated_results.append(result)
 
     # 결과 저장
-    print(f"\n결과 저장 중: {output_file}")
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(evaluated_results, f, ensure_ascii=False, indent=2)
-
-    print(f"평가 완료! 결과가 {output_file}에 저장되었습니다.")
+    print(f"\n결과 저장 중: {output_detail}")
+    utils.write_json_file(evaluated_results, output_detail)
+    utils.write_jsonl_file(evaluated_results, output_detail + "l")
+    print(f"평가 완료! 결과가 {output_detail}에 저장되었습니다.")
 
     # 결과 요약 출력
+    summary_table = {
+        "low": {"low": 0, "mid": 0, "high": 0},
+        "mid": {"low": 0, "mid": 0, "high": 0},
+        "high": {"low": 0, "mid": 0, "high": 0},
+    }
+
     print("\n=== 평가 결과 요약 ===")
+    i = 0
     for i, result in enumerate(evaluated_results, 1):
         print(f"\n{i}. {result['headline'][:50]}...")
         for bq in result["best_questions"]:
             print(f"  - {bq['reasoning_effort']}: {bq['best_expert']} 전문가 선택")
 
+            summary_table[bq["reasoning_effort"]][bq["best_expert"]] += 1
+
+    i += 1
+    print(f"\n{i}. 추론 난이도별 전문가 선택 결과")
+    for reasoning_effort in summary_table.keys():
+        print(f"  - {reasoning_effort}_reasoning_effort에 대한 전문가별 질문 선택 횟수")
+        
+        for expert_level in summary_table[reasoning_effort]:
+            print(f"   . {expert_level} 레벨 전문가: {summary_table[reasoning_effort][expert_level]}회 선택")
+
+        print("\n")
+        
+    utils.write_json_file(summary_table, output_summary)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="OpenAI Question Evalueation Script")
+    parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
+
+    args = parser.parse_args()
+
+    main(args)
