@@ -5,15 +5,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "RevPAR(매출호텔당수익)이란 무엇이며, Marriott International Inc.의 RevPAR 성장률은 어떻게 되었나요?"
+        "question": "RevPAR는 무엇을 의미하며, 어떻게 계산되나요?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "Marriott International Inc.의 이익 전망치가 하향 조정된 이유는 무엇인가요?"
+        "question": "Marriott International Inc.의 2분기 실적이 전체 연간 실적에 어떤 영향을 미칠 것으로 예상되나요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "Marriott International Inc.의 실적에 영향을 미친 외부 요인들과 그 영향은 무엇인가요?"
+        "question": "Marriott International Inc.의 수익성 악화가 호텔 산업 전반의 경기 침체를 반영하는 것인지, 아니면 특정 기업만의 문제인지 분석해보세요."
       }
     ]
   },
@@ -27,11 +27,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "Sulfurcell Solartechnik GmbH가 생산 능력을 확장하기 위해 전략적 파트너를 찾는 이유는 무엇인가요?"
+        "question": "Sulfurcell Solartechnik GmbH가 생산 능력을 확장하려는 이유는 무엇인가요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "Sulfurcell Solartechnik GmbH가 생산 능력을 확장하기 위해 고려하고 있는 지역과 그 이유는 무엇인가요?"
+        "question": "Sulfurcell Solartechnik GmbH가 생산 능력을 확장하기 위해 전략적 파트너를 찾는 것이 어떤 잠재적인 이점과 도전 과제를 가지고 있을까요?"
       }
     ]
   },
@@ -77,15 +77,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "그리스의 세금 문제는 어떤 측면에서 심각한가?"
+        "question": "그리스의 세금 문제는 어떤 영향을 미칠 수 있을까요?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "그리스의 세금 탈루가 국가 경제에 미치는 영향은 무엇인가?"
+        "question": "그리스의 세금 문제가 외국인 투자에 어떤 영향을 미칠 수 있을까요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "그리스의 세금 탈루 문제를 해결하기 위한 가능한 정책 방안은 무엇인가?"
+        "question": "그리스의 세금 문제가 EU 내 다른 국가들의 세금 정책에 어떤 영향을 미칠 수 있을까요?"
       }
     ]
   },
@@ -95,15 +95,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "사우디 아라비아의 상업 은행 산업이 세계에서 가장 수익성이 높은 이유 중 하나는 무엇인가?"
+        "question": "사우디 아라비아의 상업 은행 산업이 세계에서 가장 수익성이 높은 이유 중 하나는 무엇인가요?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "사우디 은행들이 높은 수익을 창출할 수 있는 요인들은 무엇인가?"
+        "question": "사우디 은행들이 높은 수익을 창출할 수 있는 핵심 요인은 무엇인가요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "사우디 은행들이 과거에 겪었던 어려움과 현재의 수익성 향상을 위한 전략 변화는 무엇인가?"
+        "question": "사우디 은행들이 과거에 겪었던 대출 부도 문제와 글로벌 신용 경색으로 인한 경제적 타격에도 불구하고, 현재의 높은 수익성을 유지할 수 있는 전략과 요인은 무엇인가요?"
       }
     ]
   },
@@ -113,15 +113,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "미국 기업의 고용 지표가 독일 주식 시장에 어떤 영향을 미칠 수 있나요?"
+        "question": "미국 기업의 고용지표가 독일 주식 시장에 어떤 영향을 미칠 수 있나요?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "경제 전망에 대한 고용 지표의 예측치와 실제 결과의 차이가 주식 시장에 어떤 영향을 미칠 수 있을까요?"
+        "question": "경제 전망에 대한 고용지표의 예측력이 주식 시장에 어떻게 반영되나요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "다양한 국가의 경제 지표가 글로벌 주식 시장, 특히 독일의 DAX 지수에 어떻게 상호작용하며 영향을 미칠 수 있을까요?"
+        "question": "경제 지표의 예상치 못한 결과가 글로벌 주식 시장의 상관관계에 어떤 영향을 미칠 수 있나요?"
       }
     ]
   },
@@ -135,11 +135,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "폭스바겐이 페이톤을 다시 출시하면 미국 시장에서의 전략에 어떤 영향을 미칠까?"
+        "question": "폭스바겐의 페이톤 재출시가 미국 시장 전략에 어떤 영향을 미칠 수 있을까?"
       },
       {
         "reasoning_effort": "high",
-        "question": "폭스바겐이 페이톤을 미국 시장에 다시 출시하는 것이 브랜드 이미지에 어떤 영향을 미칠 수 있을까?"
+        "question": "폭스바겐의 페이톤 재출시가 럭셔리 세단 시장과 경쟁사들에게 어떤 영향을 줄 수 있을까?"
       }
     ]
   },
@@ -167,15 +167,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "도널드 페인이 어떤 경력을 가지고 있었는지 설명해 줄 수 있나요?"
+        "question": "도널드 페인이 어떤 경력을 가지고 있었으며, 어떤 분야에서 두각을 나타냈나요?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "도널드 페인이 아프리카의 민주주의를 위해 어떤 활동을 했는지 구체적인 사례를 들어 설명해 줄 수 있나요?"
+        "question": "도널드 페인이 아프리카의 민주주의를 위해 어떤 활동을 했으며, 그 활동이 어떤 영향을 미쳤나요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "도널드 페인이 미국 정치에서 어떤 역할을 했으며, 그의 활동이 아프리카의 정치와 사회에 어떤 영향을 미쳤는지 분석해 줄 수 있나요?"
+        "question": "도널드 페인이 미국 정치에서 어떤 역할을 했으며, 그의 활동이 미국 내외에 어떤 영향을 미쳤나요?"
       }
     ]
   }

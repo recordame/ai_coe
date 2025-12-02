@@ -63,9 +63,12 @@ def evaluate_questions(article_data):
                 # 해당 expert_level의 questions 리스트에서 reasoning_effort에 맞는 질문 찾기
                 questions_list = article_data[expert_level].get("questions", [])
                 for q in questions_list:
-                    if q.get("reasoning_effort") == reasoning_effort:
-                        questions_dict[expert_level] = q.get("question", "")
-                        break
+                    try:
+                        if q.get("reasoning_effort") == reasoning_effort:
+                            questions_dict[expert_level] = q.get("question", "")
+                            break
+                    except:
+                        continue
 
         # 질문이 없으면 스킵
         if not questions_dict:

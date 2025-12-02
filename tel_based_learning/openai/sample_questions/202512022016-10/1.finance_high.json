@@ -5,15 +5,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "Marriott International Inc.의 2분기 실적이 애널리스트들의 예상과 일치한 이유는 무엇인가요?"
+        "question": "Marriott International Inc.의 2분기 실적이 애널리스트들의 예상과 일치했다는 사실은 어떤 의미를 가질 수 있을까요?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "Marriott International Inc.의 연간 이익 전망을 하향 조정한 주요 요인은 무엇인가요?"
+        "question": "Marriott International Inc.이 연간 이익 전망을 하향 조정한 이유는 무엇이며, 이는 기업의 장기적인 수익성에 어떤 영향을 미칠 수 있을까요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "Marriott International Inc.의 수익 창출 방식과 비즈니스 모델이 장기적으로 경쟁우위를 유지할 수 있는지 평가하기 위해 어떤 요소들을 고려해야 하나요?"
+        "question": "Marriott International Inc.의 CEO가 언급한 '경기 침체의 여파'와 '아시아 및 중동 지역의 수요 추세에 대한 보다 보수적인 시각'은 기업의 자본 배분 및 자본 정책에 어떤 영향을 미칠 수 있을까요?"
       }
     ]
   },
@@ -31,7 +31,7 @@
       },
       {
         "reasoning_effort": "high",
-        "question": "Sulfurcell Solartechnik GmbH가 생산 능력을 확장할 때 고려해야 할 잠재적인 리스크와 기회는 무엇인가요?"
+        "question": "Sulfurcell Solartechnik GmbH가 생산 능력을 확장하는 것이 태양광 산업 내 경쟁 구도에 어떤 영향을 미칠 수 있을까요?"
       }
     ]
   },
@@ -49,7 +49,7 @@
       },
       {
         "reasoning_effort": "high",
-        "question": "Solvay SA의 가격 인상 전략이 시장 수요와 경쟁 우위에 어떤 영향을 미칠 수 있을지 분석해 보세요."
+        "question": "Solvay SA의 이번 실적 발표가 해당 산업 및 경쟁사에 어떤 영향을 미칠 수 있을지 분석해 보세요."
       }
     ]
   },
@@ -63,11 +63,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "Evolution Group Plc가 Panmure Gordon & Co에 대한 인수를 고려하는 배경에는 어떤 요인이 있을까요?"
+        "question": "Evolution Group Plc가 Panmure Gordon & Co에 대한 인수를 고려하는 배경에는 어떤 요인이 작용하고 있을까요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "QInvest LLC가 Panmure Gordon의 주요 주주로서, 이번 인수 건에 어떤 영향을 미칠 수 있을까요?"
+        "question": "QInvest LLC가 Panmure Gordon & Co의 주요 주주로서, 이번 인수 건에 어떤 영향을 미칠 수 있을까요?"
       }
     ]
   },
@@ -77,15 +77,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "그리스의 세금 문제가 경제에 어떤 영향을 미칠 수 있을까요?"
+        "question": "그리스의 세금 문제는 어떤 경제적 영향을 미칠 수 있을까요?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "세금 탈루가 기업의 자본 배분과 자본 정책에 어떤 영향을 미칠 수 있을까요?"
+        "question": "그리스의 세금 탈루가 정부의 재정 건전성과 경제 성장에 어떤 영향을 미칠 수 있을까요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "세금 정책이 기업의 경영진 보상 구조와 이해관계자의 인센티브에 어떤 영향을 미칠 수 있을까요?"
+        "question": "그리스의 세금 탈루 문제가 외국인 투자자들의 투자 결정과 그리스 기업의 국제 경쟁력에 어떤 영향을 미칠 수 있을까요?"
       }
     ]
   },
@@ -103,7 +103,7 @@
       },
       {
         "reasoning_effort": "high",
-        "question": "사우디아라비아 은행들이 과거에 겪었던 대출 부도 문제와 글로벌 신용 경색으로 인한 경제적 타격에서 회복할 수 있었던 전략은 무엇이었나요?"
+        "question": "사우디아라비아 은행들이 과거에 겪었던 대출 부도 사태와 글로벌 신용 경색으로 인한 경제적 타격 이후, 어떻게 회복하고 수익성을 유지할 수 있었나요?"
       }
     ]
   },
@@ -117,11 +117,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "경제지표 발표가 주식시장의 변동성에 어떤 영향을 주나요?"
+        "question": "경제지표가 주식시장의 등락에 어떤 영향을 미치는지 설명해 주세요."
       },
       {
         "reasoning_effort": "high",
-        "question": "거시경제 지표가 기업의 자본 배분 결정에 어떤 영향을 미칠 수 있나요?"
+        "question": "다양한 국가의 경제지표가 글로벌 주식시장에 미치는 상호 연관성을 분석해 보세요."
       }
     ]
   },
@@ -153,11 +153,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "기업의 사회적 책임(CSR) 활동이 최근 대학 졸업생들의 취업 결정에 어떤 영향을 미치나요?"
+        "question": "기업의 사회적 책임(CSR) 활동이 최근 대학 졸업생들의 취업 결정에 어떤 영향을 미칠 수 있나요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "기업의 자원봉사 프로그램이 어떻게 기업의 전략적 비즈니스 이니셔티브로 활용될 수 있나요?"
+        "question": "기업의 자원봉사 프로그램이 신흥 시장에서 새로운 비즈니스 기회를 발굴하는 데 어떤 역할을 할 수 있나요?"
       }
     ]
   },
@@ -167,15 +167,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "아프리카의 민주주의 발전을 위해 미국 하원에서 활동한 뉴저지 주의 첫 번째 흑인 의원은 누구인가요?"
+        "question": "아프리카의 민주주의 발전을 위해 활동한 미국의 정치인 중 한 명은 누구인가?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "도널드 페인이 아프리카의 민주주의 발전을 위해 어떤 활동을 했으며, 그 중 한 가지 예를 들어 설명할 수 있나요?"
+        "question": "도널드 페인이 아프리카 방문 중 겪은 사건 중 하나는 무엇인가?"
       },
       {
         "reasoning_effort": "high",
-        "question": "도널드 페인이 아프리카의 민주주의 발전을 위해 했던 활동들이 미국 내 흑인 정치인들의 역할과 영향력에 어떤 영향을 미쳤을까요?"
+        "question": "도널드 페인이 미국 하원에서 어떤 위원회의 전 의장이었는가?"
       }
     ]
   }

@@ -63,9 +63,7 @@ def main(args):
         print(f"압축 해제 완료.")
 
     print(f"데이터셋 로드 중...")
-    dataset = load_dataset("csv", data_files=csv_path, split="train").select(
-        range(num_of_data)
-    )
+    dataset = load_dataset("csv", data_files=csv_path, split="train").select(range(num_of_data))
     print(f"데이터셋 로드 완료. 총 {len(dataset)}개 처리 예정.")
 
     for expert_level in expert_levels:
@@ -81,34 +79,35 @@ def main(args):
         ):
             messages_list = batch_chat_template(batch, prompt, expert_level, args)
 
-            for headline, article, messages in zip(
-                batch["Headline"], batch["Article"], messages_list
-            ):
-                try:
-                    response = client.chat.completions.create(
-                        model=model_name,
-                        messages=messages,
-                        max_tokens=4096,
-                        temperature=0.1,
-                    )
-
-                    questions = response.choices[0].message.content
-
-                    # 답변이 json형식이 아닌 경우, json 응답을 내놓을 때 까지 반복
+            for headline, article, messages in zip(batch["Headline"], batch["Article"], messages_list):
+                while True:
                     try:
-                        json.loads(questions)
+                        response = client.chat.completions.create(
+                            model=model_name,
+                            messages=messages,
+                            max_tokens=4096,
+                            temperature=0.1,
+                        )
+
+                        questions = response.choices[0].message.content
+
+                        # 답변이 json형식이 아닌 경우, json 응답을 내놓을 때 까지 반복
+                        try:
+                            json.loads(questions)
+                            
+                            formatted_msg.append(
+                                {
+                                    "headline": headline,
+                                    "article": article,
+                                    "questions": json.loads(questions),
+                                }
+                            )
+
+                            break
+                        except:
+                            continue
                     except:
                         continue
-
-                    formatted_msg.append(
-                        {
-                            "headline": headline,
-                            "article": article,
-                            "questions": json.loads(questions),
-                        }
-                    )
-                except:
-                    continue
 
         utils.write_json_file(formatted_msg, output_filename)
         utils.write_jsonl_file(formatted_msg, output_filename + "l")
@@ -117,13 +116,9 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAI Inference Script")
     parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
-    parser.add_argument(
-        "--max_batch_size", type=int, default=max_batch, help="batch_size"
-    )
+    parser.add_argument("--max_batch_size", type=int, default=max_batch, help="batch_size")
     parser.add_argument("--lang", type=str, default="korean", help="lang")
-    parser.add_argument(
-        "--prompt_type", type=str, default="qa_pair_with_re", help="prompt type"
-    )
+    parser.add_argument("--prompt_type", type=str, default="qa_pair_with_re", help="prompt type")
     parser.add_argument("--model_name", type=str, default=model)
 
     args = parser.parse_args()

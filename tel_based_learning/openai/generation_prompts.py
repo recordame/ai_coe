@@ -1,5 +1,5 @@
 PROMPTS = {
-    "answer_generation_short": {
+    "answer_generation": {
         "korean": {
             "system": """
                       당신은 {domain_name} 분야의 전문가입니다. 
