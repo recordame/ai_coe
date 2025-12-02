@@ -1,14 +1,14 @@
 import argparse
 import json
-from math import ceil
 import os
+from math import ceil
 
-from tqdm import tqdm
-from datasets import load_dataset
+import pandas as pd
+import utils
+from datasets import Dataset, load_dataset
 from generation_prompts import PROMPTS
 from openai import OpenAI
-import utils
-
+from tqdm import tqdm
 
 client = OpenAI(
     api_key="up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc", base_url="https://api.upstage.ai/v1"
@@ -18,6 +18,43 @@ model = "upstage/solar-1-mini-chat"
 batch_size = 1
 
 
+def normalize_qa_column(item):
+    """
+    'low', 'mid', 'high' 컬럼 내용을 {'questions': [...]} 형식으로 정규화
+    """
+    if isinstance(item, dict):
+        if "questions" in item and isinstance(item["questions"], list):
+            # 이미 예상 형식: {'questions': [...]}
+            return item
+        elif "question" in item and "reasoning_effort" in item:
+            # 단일 QA 딕셔너리이므로 {'questions': [item]}로 래핑
+            return {"questions": [item]}
+    elif item is None:
+        # None 값을 정상적으로 처리
+        return {"questions": []}
+
+    # 문자열 표현 구문 분석 시도
+    if isinstance(item, str):
+        try:
+            parsed_item = json.loads(item)
+            if isinstance(parsed_item, dict):
+                if "questions" in parsed_item and isinstance(
+                    parsed_item["questions"], list
+                ):
+                    return parsed_item
+                elif "question" in parsed_item and "reasoning_effort" in parsed_item:
+                    return {"questions": [parsed_item]}
+            elif isinstance(parsed_item, list):
+                # 직접 QA 목록인 경우 'questions' 아래에 래핑
+                return {"questions": parsed_item}
+        except (json.JSONDecodeError, TypeError):
+            pass  # 유효한 JSON 문자열이 아니거나 구문 분석할 수 없음
+
+    return {
+        "questions": []
+    }  # 처리할 수 없거나 예상치 못한 형식인 경우 기본적으로 빈 목록을 반환
+
+
 def main(args):
     model_name = args.model_name
     PROMPT = PROMPTS[args.prompt_type][args.lang]
@@ -25,7 +62,15 @@ def main(args):
     dataset_path = f"sample_questions/2.{args.domain}_merged.jsonl"
     print(f"데이터셋 로드 중...")
 
-    dataset = load_dataset("json", data_files=dataset_path, split="train")
+    raw_data = utils.load_jsonl_file(dataset_path)
+    df_raw = pd.DataFrame(raw_data)
+
+    # 일관된 구조를 보장하기 위해 'low', 'mid', 'high' 컬럼을 정규화
+    for col in ["low", "mid", "high"]:
+        df_raw[col] = df_raw[col].apply(normalize_qa_column)
+
+    # pandas DataFrame을 HuggingFace Dataset으로 변환
+    dataset = Dataset.from_pandas(df_raw)
 
     print(f"데이터셋 로드 완료. 총 {len(dataset)}개 문서 처리 예정.")
 
