@@ -81,7 +81,6 @@ def main(args):
 
             for headline, article, messages in zip(batch["Headline"], batch["Article"], messages_list):
                 while True:
-                    print(headline[:20])
                     try:
                         response = client.chat.completions.create(
                             model=model_name,
@@ -103,8 +102,7 @@ def main(args):
                             }
                         )
                         break
-                    except Exception as e:
-                        print(e)
+                    except:
                         continue
 
         utils.write_json_file(formatted_msg, output_filename)
