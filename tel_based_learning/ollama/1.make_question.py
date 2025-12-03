@@ -1,0 +1,148 @@
+import argparse
+from concurrent.futures import ThreadPoolExecutor
+import json
+import os
+
+import pandas as pd
+import py7zr
+import requests
+from tqdm import tqdm
+
+from generation_prompts import PROMPTS
+import utils
+
+
+def call_ollama(model="gpt-oss:120b", messages=None, stream=False):
+    url = "http://ollama:11434/api/chat"
+    with requests.Session() as session:
+        response = session.post(
+            url, json={"model": model, "messages": messages, "stream": stream}
+        )
+        response.raise_for_status()
+        return response.json()["message"]["content"]
+
+
+model = "gpt-oss:120b"
+
+# 아래 전문가 레벨을 조절하여 질문 생성
+# low:  초급인력 (퍼플렉시티 기준: 중급 상단~고급 초입)
+# mid:  중급인력 (고급 독해자)
+# high: 고급인력 (최상위 고급, 즉 전문가 수준)
+expert_levels = ["low", "mid", "high"]
+num_of_data = 10
+max_batch = 1
+num_workers = 4
+
+
+def batch_chat_template(batch, prompt, expert_level, args):
+    messages = []
+    system_prompt = prompt["system"][expert_level].format(domain_name=args.domain)
+
+    for article in batch["Article"]:
+        user_prompt = prompt["user"].format(domain_name=args.domain, input_text=article)
+
+        messages.append(
+            [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ]
+        )
+
+    return messages
+
+
+def parsing_q_list(row):
+    qa_list = row["questions"]
+
+    return {"qa_list": json.dumps(qa_list, ensure_ascii=False)}
+
+
+def process_single_question(headline, article, messages, model_name):
+    while True:
+        try:
+            questions = call_ollama(model=model_name, messages=messages)
+            try:
+                json.loads(questions)
+                return {
+                    "headline": headline,
+                    "article": article,
+                    "questions": json.loads(questions),
+                }
+            except:
+                continue
+        except:
+            continue
+
+
+def main(args):
+    model_name = args.model_name
+    prompt = PROMPTS[args.prompt_type][args.lang]
+
+    csv_path = "../bloomberg_financial_news_120k.csv"
+    archive_path = "../bloomberg_financial_news_120k.csv.7z"
+
+    if not os.path.exists(csv_path) and os.path.exists(archive_path):
+        print(f"압축 파일 해제 중...")
+        with py7zr.SevenZipFile(archive_path, mode="r") as archive:
+            archive.extractall(path="..")
+        print(f"압축 해제 완료.")
+
+    print(f"데이터셋 로드 중...")
+    dataset = pd.read_csv(csv_path).head(args.num_of_data)
+    print(f"데이터셋 로드 완료. 총 {len(dataset)}개 처리 예정.")
+
+    for expert_level in expert_levels:
+        output_filename = f"sample_questions/1.{args.domain}_{expert_level}_{args.num_of_data}.json"  # _{pd.Timestamp.now(tz="Asia/Seoul").strftime("%Y%m%d_%H%M%S")}
+        processed_dataset = dataset
+
+        formatted_msg = []
+
+        for i in tqdm(
+            range(0, len(processed_dataset), args.max_batch_size),
+            desc=f"전문가 레벨 {expert_level} 질문 생성중",
+        ):
+            batch_df = processed_dataset.iloc[i : i + args.max_batch_size]
+            batch = {
+                "Headline": batch_df["Headline"].tolist(),
+                "Article": batch_df["Article"].tolist(),
+            }
+
+            messages_list = batch_chat_template(batch, prompt, expert_level, args)
+
+            tasks = []
+            with ThreadPoolExecutor(max_workers=args.num_workers) as executor:
+                for idx, (headline, article, messages) in enumerate(
+                    zip(batch["Headline"], batch["Article"], messages_list)
+                ):
+                    future = executor.submit(
+                        process_single_question, headline, article, messages, model_name
+                    )
+                    tasks.append((idx, future))
+
+                results = [None] * len(tasks)
+                for idx, future in tasks:
+                    result = future.result()
+                    results[idx] = result
+
+                formatted_msg.extend(results)
+
+        utils.write_json_file(formatted_msg, output_filename)
+        utils.write_jsonl_file(formatted_msg, output_filename + "l")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="OpenAI Inference Script")
+    parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
+    parser.add_argument(
+        "--max_batch_size", type=int, default=max_batch, help="batch_size"
+    )
+    parser.add_argument("--lang", type=str, default="korean", help="lang")
+    parser.add_argument(
+        "--prompt_type", type=str, default="qa_pair_with_re", help="prompt type"
+    )
+    parser.add_argument("--model_name", type=str, default=model)
+    parser.add_argument("--num_workers", type=int, default=num_workers)
+    parser.add_argument("--num_of_data", type=int, default=num_of_data)
+
+    args = parser.parse_args()
+    main(args)

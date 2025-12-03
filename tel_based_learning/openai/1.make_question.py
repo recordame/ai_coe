@@ -3,19 +3,16 @@ import json
 from math import ceil
 import os
 
-from tqdm import tqdm
-
 from datasets import load_dataset
-from generation_prompts import PROMPTS
 from openai import OpenAI
 import py7zr
+from tqdm import tqdm
+
+from generation_prompts import PROMPTS
 import utils
 
-
-client = OpenAI(
-    api_key="up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc", base_url="https://api.upstage.ai/v1"
-)
 model = "upstage/solar-1-mini-chat"
+
 
 # 아래 전문가 레벨을 조절하여 질문 생성
 # low:  초급인력 (퍼플렉시티 기준: 중급 상단~고급 초입)
@@ -24,6 +21,10 @@ model = "upstage/solar-1-mini-chat"
 expert_levels = ["low", "mid", "high"]
 num_of_data = 10
 max_batch = 1
+
+client = OpenAI(
+    api_key="up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc", base_url="https://api.upstage.ai/v1"
+)
 
 
 def batch_chat_template(batch, prompt, expert_level, args):
@@ -63,11 +64,15 @@ def main(args):
         print(f"압축 해제 완료.")
 
     print(f"데이터셋 로드 중...")
-    dataset = load_dataset("csv", data_files=csv_path, split="train").select(range(num_of_data))
+    dataset = load_dataset("csv", data_files=csv_path, split="train").select(
+        range(args.num_of_data)
+    )
     print(f"데이터셋 로드 완료. 총 {len(dataset)}개 처리 예정.")
 
     for expert_level in expert_levels:
-        output_filename = f"sample_questions/1.{args.domain}_{expert_level}.json"  # _{pd.Timestamp.now(tz="Asia/Seoul").strftime("%Y%m%d_%H%M%S")}
+        output_filename = (
+            f"sample_questions/1.{args.domain}_{expert_level}_{args.num_of_data}.json"
+        )
         processed_dataset = dataset
 
         formatted_msg = []
@@ -79,7 +84,9 @@ def main(args):
         ):
             messages_list = batch_chat_template(batch, prompt, expert_level, args)
 
-            for headline, article, messages in zip(batch["Headline"], batch["Article"], messages_list):
+            for headline, article, messages in zip(
+                batch["Headline"], batch["Article"], messages_list
+            ):
                 while True:
                     try:
                         response = client.chat.completions.create(
@@ -94,7 +101,7 @@ def main(args):
                         # 답변이 json형식이 아닌 경우, json 응답을 내놓을 때 까지 반복
                         try:
                             json.loads(questions)
-                            
+
                             formatted_msg.append(
                                 {
                                     "headline": headline,
@@ -120,6 +127,7 @@ if __name__ == "__main__":
     parser.add_argument("--lang", type=str, default="korean", help="lang")
     parser.add_argument("--prompt_type", type=str, default="qa_pair_with_re", help="prompt type")
     parser.add_argument("--model_name", type=str, default=model)
+    parser.add_argument("--num_of_data", type=int, default=num_of_data, help="number of data to generate")
 
     args = parser.parse_args()
     main(args)

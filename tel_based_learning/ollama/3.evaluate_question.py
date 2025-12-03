@@ -1,17 +1,26 @@
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import json
 
+import requests
 from tqdm import tqdm
 
-from openai import OpenAI
 import utils
 
-# Solar API 설정
-client = OpenAI(
-    api_key="up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc", base_url="https://api.upstage.ai/v1"
-)
-model = "upstage/solar-1-mini-chat"
+model = "gpt-oss:120b"
 num_of_data = 10
+num_workers = 4
+
+
+def call_ollama(model="gpt-oss:120b", messages=None, stream=False):
+    url = "http://ollama:11434/api/chat"
+    with requests.Session() as session:
+        response = session.post(
+            url, json={"model": model, "messages": messages, "stream": stream}
+        )
+        response.raise_for_status()
+        return response.json()["message"]["content"]
+
 
 def create_judge_prompt(article, headline, reasoning_effort, questions_dict):
     # LLM Judge를 위한 프롬프트 생성
@@ -80,7 +89,7 @@ def evaluate_questions(article_data):
         )
 
         while True:
-            response = client.chat.completions.create(
+            result_text = call_ollama(
                 model=model,
                 messages=[
                     {
@@ -89,11 +98,7 @@ def evaluate_questions(article_data):
                     },
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=1024,
-                temperature=0.1,  # 평가의 일관성을 위해 낮은 temperature 사용
-            )
-
-            result_text = response.choices[0].message.content.strip()
+            ).strip()
 
             # JSON 파싱 시도
             try:
@@ -124,7 +129,9 @@ def evaluate_questions(article_data):
 def main(args):
     # 입력 파일 경로
     input_file = f"sample_questions/2.{args.domain}_merged_{args.num_of_data}.jsonl"
-    output_detail = f"sample_questions/3.{args.domain}_evaluated_{args.num_of_data}.json"
+    output_detail = (
+        f"sample_questions/3.{args.domain}_evaluated_{args.num_of_data}.json"
+    )
     output_summary = f"sample_questions/3.{args.domain}_summary_{args.num_of_data}.json"
 
     # 입력 파일 로드
@@ -136,11 +143,15 @@ def main(args):
     # 각 기사에 대해 평가 수행
     evaluated_results = []
 
-    for article_data in tqdm(data, desc="기사 평가 중"):
-        result = evaluate_questions(article_data)
-        evaluated_results.append(result)
+    with ThreadPoolExecutor(max_workers=args.num_workers) as executor:
+        futures = [
+            executor.submit(evaluate_questions, article_data) for article_data in data
+        ]
 
-    # 결과 저장
+        for future in tqdm(futures, total=len(data), desc="기사 평가 중"):
+            result = future.result()
+            evaluated_results.append(result)
+
     print(f"\n결과 저장 중: {output_detail}")
     utils.write_json_file(evaluated_results, output_detail)
     utils.write_jsonl_file(evaluated_results, output_detail + "l")
@@ -168,16 +179,25 @@ def main(args):
         print(f"  - {reasoning_effort}_reasoning_effort에 대한 전문가별 질문 선택 횟수")
 
         for expert_level in summary_table[reasoning_effort]:
-            print(f"   . {expert_level} 레벨 전문가: {summary_table[reasoning_effort][expert_level]}회 선택")
+            print(
+                f"   . {expert_level} 레벨 전문가: {summary_table[reasoning_effort][expert_level]}회 선택"
+            )
 
         print("\n")
 
     utils.write_json_file(summary_table, output_summary)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAI Question Evalueation Script")
     parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
-    parser.add_argument("--num_of_data", type=int, default=num_of_data, help="number of data to evaluate")
+    parser.add_argument(
+        "--num_workers",
+        type=int,
+        default=num_workers,
+        help="number of parallel workers",
+    )
+    parser.add_argument("--num_of_data", type=int, default=num_of_data)
 
     args = parser.parse_args()
 

@@ -2,10 +2,8 @@ import argparse
 
 import utils
 
-num_of_data = 10
 
-
-def merge_finance_question(args):
+def main(args):
 
     # 전문가 레벨
     expert_levels = ["low", "mid", "high"]
@@ -51,7 +49,7 @@ def merge_finance_question(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAI Question Merge Script")
     parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
-    parser.add_argument("--num_of_data", type=int, default=num_of_data, help="number of data to merge")
+    parser.add_argument("--num_of_data", type=int, default=num_of_data)
 
     args = parser.parse_args()
-    merge_finance_question(args)
+    main(args)
