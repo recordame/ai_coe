@@ -49,7 +49,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAI Question Merge Script")
     parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
-    parser.add_argument("--num_of_data", type=int, default=num_of_data)
+    parser.add_argument("--num_of_data", type=int, default=num_of_data, help="number of articles to merge")
 
     args = parser.parse_args()
     main(args)

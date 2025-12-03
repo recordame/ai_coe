@@ -16,13 +16,11 @@ num_of_data = 10
 def create_judge_prompt(article, headline, reasoning_effort, questions_dict):
     # LLM Judge를 위한 프롬프트 생성
 
-    prompt = f"""당신은 금융 전문가이자 교육 평가 전문가입니다. 주어진 기사에 대해 여러 세 익명의 도메인 관련자 부터 생성된 질문들을 평가하고, 가장 전문가답고 질 높은 질문을 선택해야 합니다.
+    prompt = f"""당신은 금융 전문가이자 교육 평가 전문가입니다. 주어진 기사에 대해 세 익명의 도메인 관련자 부터 생성된 질문들을 평가하고, 가장 전문가답고 질 높은 질문을 선택해야 합니다.
                 **기사 제목**: {headline}
 
                 **기사 본문**: 
                 {article}
-
-                **추론 난이도**: {reasoning_effort}
 
                 **익명의 도메인 관련자**:
                 1. **low**: {questions_dict.get('low')}
@@ -32,8 +30,7 @@ def create_judge_prompt(article, headline, reasoning_effort, questions_dict):
                 위 질문들 중에서 다음 기준으로 가장 우수한 질문을 선택하세요
                 1. 기사 내용과의 관련성
                 2. 질문의 금융 도메인의 적합성
-                3. 해당 추론 난이도에 적합한 깊이
-                4. 전문성과 통찰력
+                3. 전문성과 통찰력
 
                 **응답 형식** (반드시 JSON 형식으로만 응답):
                 {{
@@ -148,9 +145,9 @@ def main(args):
 
     # 결과 요약 출력
     summary_table = {
-        "low": {"low": 0, "mid": 0, "high": 0},
-        "mid": {"low": 0, "mid": 0, "high": 0},
-        "high": {"low": 0, "mid": 0, "high": 0},
+        "low_reasoning_effort": {"low_level_expert": 0, "mid_level_expert": 0, "high_level_expert": 0},
+        "mid_reasoning_effort": {"low_level_expert": 0, "mid_level_expert": 0, "high_level_expert": 0},
+        "high_reasoning_effort": {"low_level_expert": 0, "mid_level_expert": 0, "high_level_expert": 0},
     }
 
     print("\n=== 평가 결과 요약 ===")

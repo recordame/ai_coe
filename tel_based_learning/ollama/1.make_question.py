@@ -53,7 +53,6 @@ def batch_chat_template(batch, prompt, expert_level, args):
 
 def parsing_q_list(row):
     qa_list = row["questions"]
-
     return {"qa_list": json.dumps(qa_list, ensure_ascii=False)}
 
 
@@ -61,15 +60,14 @@ def process_single_question(headline, article, messages, model_name):
     while True:
         try:
             questions = call_ollama(model=model_name, messages=messages)
-            try:
-                json.loads(questions)
-                return {
-                    "headline": headline,
-                    "article": article,
-                    "questions": json.loads(questions),
-                }
-            except:
-                continue
+
+            json.loads(questions)
+
+            return {
+                "headline": headline,
+                "article": article,
+                "questions": json.loads(questions),
+            }
         except:
             continue
 
@@ -98,7 +96,8 @@ def main(args):
         formatted_msg = []
 
         for i in tqdm(
-            range(0, len(processed_dataset), args.max_batch_size),
+            range(len(processed_dataset)), 
+            total=args.num_of_data,
             desc=f"전문가 레벨 {expert_level} 질문 생성중",
         ):
             batch_df = processed_dataset.iloc[i : i + args.max_batch_size]
@@ -111,12 +110,8 @@ def main(args):
 
             tasks = []
             with ThreadPoolExecutor(max_workers=args.num_workers) as executor:
-                for idx, (headline, article, messages) in enumerate(
-                    zip(batch["Headline"], batch["Article"], messages_list)
-                ):
-                    future = executor.submit(
-                        process_single_question, headline, article, messages, model_name
-                    )
+                for idx, (headline, article, messages) in enumerate(zip(batch["Headline"], batch["Article"], messages_list)):
+                    future = executor.submit(process_single_question, headline, article, messages, model_name)
                     tasks.append((idx, future))
 
                 results = [None] * len(tasks)
@@ -133,16 +128,12 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAI Inference Script")
     parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
-    parser.add_argument(
-        "--max_batch_size", type=int, default=max_batch, help="batch_size"
-    )
+    parser.add_argument("--max_batch_size", type=int, default=max_batch, help="batch_size")
     parser.add_argument("--lang", type=str, default="korean", help="lang")
-    parser.add_argument(
-        "--prompt_type", type=str, default="qa_pair_with_re", help="prompt type"
-    )
+    parser.add_argument("--prompt_type", type=str, default="qa_pair_with_re", help="prompt type")
     parser.add_argument("--model_name", type=str, default=model)
     parser.add_argument("--num_workers", type=int, default=num_workers)
-    parser.add_argument("--num_of_data", type=int, default=num_of_data)
+    parser.add_argument("--num_of_data", type=int, default=num_of_data, help="number of articles to process")
 
     args = parser.parse_args()
     main(args)

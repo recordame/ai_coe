@@ -140,7 +140,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--model_name", type=str, default=model)
     parser.add_argument("--num_workers", type=int, default=num_workers, help="number of parallel workers")
-    parser.add_argument("--num_of_data", type=int, default=num_of_data)
+    parser.add_argument("--num_of_data", type=int, default=num_of_data, help="number of articles to process")
 
     args = parser.parse_args()
     main(args)

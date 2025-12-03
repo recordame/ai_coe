@@ -31,8 +31,6 @@ def create_judge_prompt(article, headline, reasoning_effort, questions_dict):
                 **기사 본문**: 
                 {article}
 
-                **추론 난이도**: {reasoning_effort}
-
                 **익명의 도메인 관련자**:
                 1. **low**: {questions_dict.get('low')}
                 2. **mid**: {questions_dict.get('mid')}
@@ -41,8 +39,7 @@ def create_judge_prompt(article, headline, reasoning_effort, questions_dict):
                 위 질문들 중에서 다음 기준으로 가장 우수한 질문을 선택하세요
                 1. 기사 내용과의 관련성
                 2. 질문의 금융 도메인의 적합성
-                3. 해당 추론 난이도에 적합한 깊이
-                4. 전문성과 통찰력
+                3. 전문성과 통찰력
 
                 **응답 형식** (반드시 JSON 형식으로만 응답):
                 {{
@@ -92,10 +89,7 @@ def evaluate_questions(article_data):
             result_text = call_ollama(
                 model=model,
                 messages=[
-                    {
-                        "role": "system",
-                        "content": "당신은 금융 전문가이자 교육 평가 전문가입니다. 질문의 질을 평가하고 JSON 형식으로만 응답합니다.",
-                    },
+                    {"role": "system", "content": "당신은 금융 전문가이자 교육 평가 전문가입니다. 질문의 질을 평가하고 JSON 형식으로만 응답합니다."},
                     {"role": "user", "content": prompt},
                 ],
             ).strip()
@@ -159,9 +153,9 @@ def main(args):
 
     # 결과 요약 출력
     summary_table = {
-        "low": {"low": 0, "mid": 0, "high": 0},
-        "mid": {"low": 0, "mid": 0, "high": 0},
-        "high": {"low": 0, "mid": 0, "high": 0},
+        "low_reasoning_effort": {"low_level_expert": 0, "mid_level_expert": 0, "high_level_expert": 0},
+        "mid_reasoning_effort": {"low_level_expert": 0, "mid_level_expert": 0, "high_level_expert": 0},
+        "high_reasoning_effort": {"low_level_expert": 0, "mid_level_expert": 0, "high_level_expert": 0},
     }
 
     print("\n=== 평가 결과 요약 ===")
@@ -179,9 +173,7 @@ def main(args):
         print(f"  - {reasoning_effort}_reasoning_effort에 대한 전문가별 질문 선택 횟수")
 
         for expert_level in summary_table[reasoning_effort]:
-            print(
-                f"   . {expert_level} 레벨 전문가: {summary_table[reasoning_effort][expert_level]}회 선택"
-            )
+            print(f"   . {expert_level} 레벨 전문가: {summary_table[reasoning_effort][expert_level]}회 선택")
 
         print("\n")
 
@@ -189,15 +181,10 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="OpenAI Question Evalueation Script")
+    parser = argparse.ArgumentParser(description="OpenAI Question Evaluation Script")
     parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
-    parser.add_argument(
-        "--num_workers",
-        type=int,
-        default=num_workers,
-        help="number of parallel workers",
-    )
-    parser.add_argument("--num_of_data", type=int, default=num_of_data)
+    parser.add_argument("--num_workers", type=int, default=num_workers, help="number of parallel workers")
+    parser.add_argument("--num_of_data", type=int, default=num_of_data, help="number of articles to evaluate")
 
     args = parser.parse_args()
 
