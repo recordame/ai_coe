@@ -153,9 +153,9 @@ def main(args):
 
     # 결과 요약 출력
     summary_table = {
-        "low_reasoning_effort": {"low_level_expert": 0, "mid_level_expert": 0, "high_level_expert": 0},
-        "mid_reasoning_effort": {"low_level_expert": 0, "mid_level_expert": 0, "high_level_expert": 0},
-        "high_reasoning_effort": {"low_level_expert": 0, "mid_level_expert": 0, "high_level_expert": 0},
+        "low": {"low": 0, "mid": 0, "high": 0},
+        "mid": {"low": 0, "mid": 0, "high": 0},
+        "high": {"low": 0, "mid": 0, "high": 0},
     }
 
     print("\n=== 평가 결과 요약 ===")
