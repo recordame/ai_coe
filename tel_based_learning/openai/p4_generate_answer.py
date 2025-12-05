@@ -124,7 +124,7 @@ def generate_answer(args):
 
             result_docs.append(result_doc)
 
-    print(f"[{pipeline}] 질문/답변 저장{output_filename + 'l'}")
+    print(f"[{pipeline}] 질문/답변 저장({output_filename + 'l'})")
     utils.write_json_file(result_docs, output_filename)
     utils.write_jsonl_file(result_docs, output_filename + "l")
     print(f"[{pipeline}] 질문별 답변 생성 완료")
