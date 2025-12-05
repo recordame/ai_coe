@@ -1,5 +1,25 @@
 import json
 
+import requests
+
+OLLAMA_ENDPOINT = "http://ollama:11434/api/chat"
+
+
+def ollama_chat(messages, model_name):
+    with requests.session() as request:
+        payload = {
+            "model": model_name,
+            "messages": messages,
+            "stream": False,
+        }
+
+        resp = request.post(OLLAMA_ENDPOINT, json=payload)
+        resp.raise_for_status()
+        data = resp.json()
+
+        # Ollama chat 응답: {'message': {'role': 'assistant', 'content': '...'}, ...}
+        return data["message"]["content"]
+
 
 def write_jsonl_file(json_msg, output_filename: str):
     with open(output_filename, "w", encoding="utf-8") as jsonl_file:
