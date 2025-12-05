@@ -13,7 +13,7 @@
       },
       {
         "reasoning_effort": "high",
-        "question": "Marriott International Inc.의 수익성 악화가 호텔 산업 전반의 경기와 어떤 관련이 있는지 설명해보세요."
+        "question": "Marriott International Inc.의 수익성 악화가 호텔 산업 전반의 경기 침체를 반영하는 것인지, 아니면 회사 고유의 문제인지를 분석해보세요."
       }
     ]
   },
@@ -23,15 +23,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "Sulfurcell Solartechnik GmbH는 어떤 유형의 태양광 패널을 제조하나요?"
+        "question": "Sulfurcell Solartechnik GmbH는 어떤 유형의 태양 전지판을 제조하나요?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "Sulfurcell Solartechnik GmbH가 생산 능력을 확장하기 위해 전략적 파트너를 찾는 이유는 무엇인가요?"
+        "question": "Sulfurcell Solartechnik GmbH가 생산 능력을 확장하려는 이유는 무엇일까요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "Sulfurcell Solartechnik GmbH의 생산 능력 확장 계획이 태양광 산업 내 경쟁 구도에 미칠 잠재적 영향은 무엇인가요?"
+        "question": "Sulfurcell Solartechnik GmbH가 생산 능력을 확장할 경우, 경쟁사인 First Solar Inc.와의 시장 점유율 경쟁에 어떤 영향을 미칠 수 있을까요?"
       }
     ]
   },
@@ -45,11 +45,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "Solvay SA의 가격 인상 전략이 수익성에 어떤 영향을 미쳤나요?"
+        "question": "Solvay SA의 가격 인상과 수요 증가가 에너지 비용 상승을 어떻게 상쇄했는지 설명하세요."
       },
       {
         "reasoning_effort": "high",
-        "question": "Solvay SA의 에너지 비용 상승이 수익성에 미친 영향과 이를 상쇄하기 위한 전략에 대해 설명하세요."
+        "question": "Solvay SA의 가격 인상과 생산 능력 확장이 해당 산업 내 경쟁사들에 미칠 잠재적인 영향은 무엇일까요?"
       }
     ]
   },
@@ -59,15 +59,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "Evolution Group Plc가 Panmure Gordon & Co에 대한 인수를 고려하는 주된 이유는 무엇일까요?"
+        "question": "Evolution Group Plc가 Panmure Gordon & Co에 대한 인수를 고려하는 주된 이유는 무엇일까?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "신용위기 이후 영국 증권사들이 인수를 통한 통합을 추진하는 배경과 그로 인한 영향은 무엇일까요?"
+        "question": "신용위기 이후 영국 증권사들이 인수를 통한 통합을 추진하는 배경과 그 효과는 무엇일까?"
       },
       {
         "reasoning_effort": "high",
-        "question": "Panmure Gordon의 상반기 실적이 특히 도전적이었다고 하는데, 이러한 상황이 Evolution Group Plc의 인수 결정에 어떤 영향을 미칠 수 있을까요?"
+        "question": "Panmure Gordon & Co의 2009년 순손실 감소와 2010년 상반기 수익 감소가 Evolution Group Plc의 인수 결정에 어떤 영향을 미칠 수 있을까?"
       }
     ]
   },
@@ -77,15 +77,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "그리스의 세금 문제는 어떤 측면에서 나타나고 있나요?"
+        "question": "그리스의 세금 문제는 어떤 측면에서 발생하고 있습니까?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "그리스의 세금 문제가 외국인 투자자들에게 어떤 영향을 미칠 수 있을까요?"
+        "question": "그리스의 세금 문제가 경제에 미칠 수 있는 영향은 무엇일까요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "그리스의 세금 문제가 장기적으로 그리스 경제에 미칠 수 있는 영향과 이를 해결하기 위한 정책적 접근 방법에 대해 설명해보세요."
+        "question": "그리스의 세금 문제를 해결하기 위한 방안으로 어떤 정책들이 고려될 수 있을까요?"
       }
     ]
   },
@@ -99,11 +99,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "사우디 아라비아 은행들의 수익성과 관련된 다음 설명 중 가장 적절한 것은 무엇인가?"
+        "question": "사우디 아라비아 은행들의 수익성과 관련된 다음 요소들 중, 수익성에 직접적인 영향을 미치지 않는 것은 무엇인가?"
       },
       {
         "reasoning_effort": "high",
-        "question": "사우디 아라비아 은행들이 수익성을 유지하기 위해 취한 전략 중 하나로 볼 수 없는 것은 무엇인가?"
+        "question": "사우디 아라비아 은행들이 'plain vanilla domestic banking activities'에 집중하게 된 배경과 그로 인한 장점을 설명하시오."
       }
     ]
   },
@@ -113,15 +113,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "미국 고용지표가 독일 DAX 지수에 미친 영향은 무엇인가?"
+        "question": "미국 기업의 고용 감소가 독일 주식 시장에 미친 영향은 무엇인가?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "미국 고용지표가 유럽 주식시장에 미치는 영향에 대해 설명하시오."
+        "question": "미국 고용 지표가 유럽 주식 시장에 미치는 영향에 대해 설명하시오."
       },
       {
         "reasoning_effort": "high",
-        "question": "미국 고용지표가 글로벌 금융시장에 미치는 2차적 영향(예: 환율 변동, 원자재 가격 변동 등)을 분석하시오."
+        "question": "글로벌 경제 지표가 특정 국가의 주식 시장에 미치는 1차적 인과관계를 분석하고, 이를 바탕으로 향후 시장 전망을 예측하시오."
       }
     ]
   },
@@ -149,15 +149,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "기업 자원봉사 프로그램의 예로 Moody's Afternoon of Service가 언급되었습니다. 이 프로그램은 어떤 활동을 포함하고 있나요?"
+        "question": "기업 자원봉사 프로그램이 직원들의 회사에 대한 만족도에 어떤 영향을 미쳤나요?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "기업 자원봉사 프로그램이 직원들의 경력 개발에 어떤 영향을 미칠 수 있는지 설명하세요."
+        "question": "기업 자원봉사 프로그램이 기업의 전략적 비즈니스 이니셔티브로 작용하는 이유는 무엇인가요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "기업 자원봉사 프로그램이 기업의 전략적 비즈니스 이니셔티브로 활용될 수 있는 방법을 분석해보세요."
+        "question": "기업 자원봉사 프로그램이 직원의 경력 개발에 어떤 영향을 미칠 수 있으며, 이러한 프로그램이 기업의 인재 유지에 어떻게 기여할 수 있을까요?"
       }
     ]
   },
@@ -171,11 +171,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "도널드 페인이 아프리카의 민주주의를 위해 한 활동 중, 2004년 의회에서 통과된 결의안의 내용은 무엇인가요?"
+        "question": "도널드 페인이 아프리카 방문 중 겪은 사건 중 하나가 아닌 것은 무엇인가요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "도널드 페인의 아프리카 민주주의 옹호 활동이 미국 내 아프리카 국가에 대한 인식에 어떤 영향을 미쳤을까요?"
+        "question": "도널드 페인이 아프리카의 민주주의 발전을 위해 어떤 노력을 했으며, 그 결과로 어떤 영향을 미쳤나요?"
       }
     ]
   }

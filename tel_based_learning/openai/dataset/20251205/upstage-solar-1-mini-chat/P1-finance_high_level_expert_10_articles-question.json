@@ -5,15 +5,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "Marriott International Inc.의 2분기 실적이 애널리스트들의 예상과 일치했다는 사실은 어떤 의미를 가질 수 있을까요?"
+        "question": "Marriott International Inc.의 2분기 실적이 애널리스트들의 예상과 일치한 이유는 무엇인가?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "Marriott International Inc.의 연간 이익 전망을 하향 조정한 이유는 무엇이며, 이는 회사의 장기적인 성장 전망에 어떤 영향을 미칠 수 있을까요?"
+        "question": "Marriott International Inc.의 수익성 악화에 영향을 미친 주요 요인은 무엇인가?"
       },
       {
         "reasoning_effort": "high",
-        "question": "Marriott International Inc.의 실적 부진이 다른 호텔 체인인 Starwood Hotels & Resorts Worldwide Inc.와 Hyatt Hotels Corp.의 주가에 어떤 영향을 미칠 수 있을까요? 이를 분석하기 위해 어떤 요소들을 고려해야 할까요?"
+        "question": "Marriott International Inc.의 수익성 악화가 장기적으로 호텔 산업에 미칠 영향은 무엇일까?"
       }
     ]
   },
@@ -49,7 +49,7 @@
       },
       {
         "reasoning_effort": "high",
-        "question": "Solvay SA의 가격 인상과 생산 능력 확장이 장기적으로 회사의 시장 지위와 경쟁 우위에 어떤 영향을 미칠 수 있을지 분석하세요."
+        "question": "Solvay SA의 가격 인상 전략이 장기적으로 시장 경쟁력과 수익성에 어떤 영향을 미칠 수 있을지 분석하세요."
       }
     ]
   },
@@ -63,11 +63,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "신용 위기 이후 영국 증권사들의 합병 추세는 어떻게 변화했으며, 이러한 변화가 Evolution Group Plc와 Panmure Gordon & Co에 어떤 영향을 미칠 수 있을까?"
+        "question": "신용 위기 이후 영국 증권사들이 인수합병을 통한 통합을 추진하는 배경과 그 효과는 무엇일까?"
       },
       {
         "reasoning_effort": "high",
-        "question": "Evolution Group Plc가 Panmure Gordon & Co를 인수할 경우, 장기적으로 어떤 리스크와 기회가 존재하며, 이를 관리하기 위한 최적의 헷지 전략은 무엇일까?"
+        "question": "Evolution Group Plc가 Panmure Gordon & Co를 인수할 경우, 장기적으로 어떤 리스크와 기회가 존재할까? 이를 평가하기 위한 주요 지표는 무엇일까?"
       }
     ]
   },
@@ -77,15 +77,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "그리스의 세무 문제는 무엇인가?"
+        "question": "그리스의 세무 문제가 경제에 미치는 영향은 무엇일까?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "그리스의 세무 문제가 경제에 미칠 수 있는 영향은 무엇인가?"
+        "question": "그리스의 세무 문제가 외국인 투자에 미치는 영향은 무엇일까?"
       },
       {
         "reasoning_effort": "high",
-        "question": "그리스의 세무 문제를 해결하기 위한 장기적인 정책 방안과 그 효과는 무엇일까?"
+        "question": "그리스의 세무 문제가 유로존 내 다른 국가들에 미칠 수 있는 장기적인 경제적 영향은 무엇일까?"
       }
     ]
   },
@@ -99,11 +99,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "사우디 아라비아 은행들이 높은 수익을 창출하는 데 기여한 요소들을 나열하고, 각 요소가 어떻게 은행의 수익성에 영향을 미치는지 설명하시오."
+        "question": "사우디 아라비아 은행들이 높은 수익을 창출하는 데 기여한 요소들을 나열하고, 각 요소가 어떻게 수익 창출에 영향을 미쳤는지 설명하시오."
       },
       {
         "reasoning_effort": "high",
-        "question": "사우디 아라비아 은행들이 평이한 바닐라 국내 은행 활동에 집중하고 위험 관리 관행을 강화한 것이 장기적으로 은행의 안정성과 수익성에 어떤 영향을 미칠 것으로 예상하십니까?"
+        "question": "사우디 아라비아 은행들이 향후에도 현재의 수익성을 유지하기 위해 어떤 전략을 취해야 하며, 잠재적인 리스크와 이를 관리하기 위한 방안은 무엇인가?"
       }
     ]
   },
@@ -113,15 +113,15 @@
     "questions": [
       {
         "reasoning_effort": "low",
-        "question": "발췌문에서 언급된 독일 주식 시장의 하락 원인은 무엇인가?"
+        "question": "발췌문에서 언급된 독일 주식 시장의 하락 원인이 된 미국 경제 지표는 무엇인가?"
       },
       {
         "reasoning_effort": "mid",
-        "question": "미국 기업의 고용 감소가 독일 주식 시장에 어떤 영향을 미칠 수 있는지 설명하시오."
+        "question": "미국 고용지표가 독일 주식 시장에 미치는 영향에 대해 설명하시오."
       },
       {
         "reasoning_effort": "high",
-        "question": "미국 고용 지표가 글로벌 금융 시장에 미치는 영향과 이에 따른 잠재적 리스크를 평가하시오."
+        "question": "글로벌 경제 환경에서 한 국가의 경제 지표가 다른 국가의 주식 시장에 미치는 영향을 분석하고, 이러한 상호의존성이 증가하는 원인과 결과를 평가하시오."
       }
     ]
   },
@@ -139,7 +139,7 @@
       },
       {
         "reasoning_effort": "high",
-        "question": "페이톤의 미국 시장 재진입이 폭스바겐의 다른 모델들의 판매량과 시장 점유율에 미칠 잠재적 영향은 무엇인가?"
+        "question": "페이톤의 미국 시장 재진입이 폭스바겐의 다른 모델들, 특히 패사트와 제타의 판매에 미칠 잠재적 영향은 무엇인가?"
       }
     ]
   },
@@ -171,11 +171,11 @@
       },
       {
         "reasoning_effort": "mid",
-        "question": "도널드 페인(Donald Payne)이 아프리카의 민주주의를 위해 어떤 활동을 했는지 설명해 보세요."
+        "question": "도널드 페인(Donald Payne)의 아프리카에 대한 옹호가 미국 내 아프리카 국가들에 대한 인식에 어떤 영향을 미쳤을까요?"
       },
       {
         "reasoning_effort": "high",
-        "question": "도널드 페인(Donald Payne)이 미국 정치에서 아프리카 문제에 대해 어떤 영향을 미쳤는지 분석해 보세요."
+        "question": "도널드 페인(Donald Payne)이 주도한 다르푸르(Darfur) 지역 학살에 대한 '제노사이드(genocide)' 결의안이 미국 내외의 정책 및 국제사회에 미친 영향을 분석해보세요."
       }
     ]
   }

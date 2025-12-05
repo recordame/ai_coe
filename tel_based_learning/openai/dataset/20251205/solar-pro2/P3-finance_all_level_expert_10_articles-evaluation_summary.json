@@ -1,8 +1,8 @@
 {
   "low_reasoning_effort": {
     "low_level_expert": 0,
-    "mid_level_expert": 2,
-    "high_level_expert": 8
+    "mid_level_expert": 1,
+    "high_level_expert": 9
   },
   "mid_reasoning_effort": {
     "low_level_expert": 0,
@@ -11,7 +11,7 @@
   },
   "high_reasoning_effort": {
     "low_level_expert": 0,
-    "mid_level_expert": 2,
-    "high_level_expert": 8
+    "mid_level_expert": 0,
+    "high_level_expert": 10
   }
 }

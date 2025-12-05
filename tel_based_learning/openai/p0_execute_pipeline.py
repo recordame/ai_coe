@@ -13,7 +13,7 @@ pipeline = "Pipeline-0"
 
 # solar-pro2
 # upstage/solar-1-mini-chat
-model = "upstage/solar-1-mini-chat"
+model = "solar-pro2"
 num_of_data = 10
 max_batch = 1
 
