@@ -1,22 +1,27 @@
 import argparse
+import pandas as pd
+import common.utils as utils
+import os
 
-import c_utils
-
+pipeline = "Pipeline-2"
 model = "upstage/solar-1-mini-chat"
-num_of_data = 100
+num_of_data = 1
 
 
 def merge_question(args):
+    print(f"[Pipeline-2] 질문 병합 시작")
+
     # 전문가 레벨
-    expert_levels = ["low", "mid", "high"]
+    expert_levels = ["low_level_expert", "mid_level_expert", "high_level_expert"]
 
     # 전문가별 질문 취합
     all_data = {}
-    for level in expert_levels:
-        file_path = f"sample_questions/1.{args.domain}_{level}_{args.model_name.replace(':', '-')}_{args.num_of_data}.jsonl"
-        all_data[level] = c_utils.load_jsonl_file(file_path)
 
-        print(f"Loaded {file_path}: {len(all_data[level])} articles")
+    for expert_level in expert_levels:
+        file_path = f"P1-{args.domain}_{expert_level}_{args.num_of_data}_articles-question.jsonl"
+        all_data[expert_level] = utils.load_jsonl_file(file_path)
+
+        print(f"[{pipeline}] {expert_level}의 {len(all_data[expert_level])}개 기사 로드({file_path})")
 
     # 병합된 결과를 담을 리스트
     merged_results = []
@@ -40,20 +45,10 @@ def merge_question(args):
         merged_results.append(merged_article)
 
     # 병합된 결과 저장
-    output_path = f"sample_questions/2.{args.domain}_merged_{args.model_name.replace(':', '-')}_{args.num_of_data}.json"
+    output_path = f"P2-{args.domain}_all_level_expert_{args.num_of_data}_articles-question_merged.json"
 
-    c_utils.write_json_file(merged_results, output_path)
-    c_utils.write_jsonl_file(merged_results, output_path + "l")
+    utils.write_json_file(merged_results, output_path)
+    utils.write_jsonl_file(merged_results, output_path + "l")
 
-    print(f"\n병합 {len(merged_results)} articles")
-    print(f"병합 결과 저장: {output_path}")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="OpenAI Question Merge Script")
-    parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
-    parser.add_argument("--model_name", type=str, default=model)
-    parser.add_argument("--num_of_data", type=int, default=num_of_data)
-
-    args = parser.parse_args()
-    merge_question(args)
+    print(f"[{pipeline}] 병합 결과 저장({output_path})")
+    print(f"[{pipeline}] 질문 병합 완료")

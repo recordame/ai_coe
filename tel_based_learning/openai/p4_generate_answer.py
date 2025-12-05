@@ -1,21 +1,20 @@
 import argparse
 import json
-from math import ceil
-
+import common.utils as utils
 import pandas as pd
+
 from datasets import Dataset, load_dataset
 from tqdm import tqdm
-
-import c_utils
-from c_generation_prompts import PROMPTS
+from common.generation_prompts import PROMPTS
 from openai import OpenAI
 
-num_of_data = 100
-batch_size = 10
-num_of_workers = 10
-batch_size = 1
+pipeline = "Pipeline-4"
 
 model = "upstage/solar-1-mini-chat"
+num_of_data = 100
+batch_size = 10
+batch_size = 1
+
 client = OpenAI(
     api_key="up_ZDvIwLQKhlVuIrSdimyXmwdFwtSxc", base_url="https://api.upstage.ai/v1"
 )
@@ -23,7 +22,7 @@ client = OpenAI(
 
 def normalize_qa_column(item):
     """
-    'low', 'mid', 'high' 컬럼 내용을 {'questions': [...]} 형식으로 정규화
+    'low_level_expert', 'mid_level_expert', 'high_level_expert' 컬럼 내용을 {'questions': [...]} 형식으로 정규화
     """
     if isinstance(item, dict):
         if "questions" in item and isinstance(item["questions"], list):
@@ -59,32 +58,30 @@ def normalize_qa_column(item):
 
 
 def generate_answer(args):
+    print(f"[{pipeline}] 질문별 답변 생성 시작")
+
     model_name = args.model_name
-    prompt = PROMPTS[args.prompt_type][args.lang]
+    prompt = PROMPTS["answer_generation"][args.lang]
 
-    dataset_path = f"sample_questions/2.{args.domain}_merged_{args.model_name.replace(':', '-')}_{args.num_of_data}.jsonl"
-    print(f"데이터셋 로드 중...")
+    dataset_path = f"P2-{args.domain}_all_level_expert_{args.num_of_data}_articles-question_merged.jsonl"
+    print(f"[{pipeline}] 질문 데이터 로드({dataset_path})")
 
-    raw_data = c_utils.load_jsonl_file(dataset_path)
+    raw_data = utils.load_jsonl_file(dataset_path)
     df_raw = pd.DataFrame(raw_data)
 
     # 일관된 구조를 보장하기 위해 'low', 'mid', 'high' 컬럼을 정규화
-    for col in ["low", "mid", "high"]:
+    for col in ["low_level_expert", "mid_level_expert", "high_level_expert"]:
         df_raw[col] = df_raw[col].apply(normalize_qa_column)
 
     # pandas DataFrame을 HuggingFace Dataset으로 변환
     dataset = Dataset.from_pandas(df_raw)
 
-    print(f"데이터셋 로드 완료. 총 {len(dataset)}개 문서 처리 예정.")
+    print(f"[{pipeline}] 총 {len(dataset)}개 기사의 질문에 대한 답변 생성 시작")
 
-    output_filename = f"sample_questions/4.{args.domain}_QA_{args.model_name.replace(':', '-')}_{args.num_of_data}.json"
+    output_filename = f"P4-{args.domain}_all_level_expert_{args.num_of_data}_articles-answer.json"
 
     result_docs = []
-    for batch in tqdm(
-            dataset.iter(batch_size=args.max_batch_size),
-            total=ceil(len(dataset) / args.max_batch_size),
-            desc="문서 처리 중",
-    ):
+    for batch in tqdm(dataset.iter(batch_size=args.max_batch_size), total=args.num_of_data, desc=f"[{pipeline}] 기사 처리 중"):
         batch_size = len(batch["headline"])
 
         for idx in range(batch_size):
@@ -94,18 +91,16 @@ def generate_answer(args):
             result_doc = {
                 "headline": headline,
                 "article": article_text,
-                "low": batch["low"][idx].copy(),
-                "mid": batch["mid"][idx].copy(),
-                "high": batch["high"][idx].copy(),
+                "low_level_expert": batch["low_level_expert"][idx].copy(),
+                "mid_level_expert": batch["mid_level_expert"][idx].copy(),
+                "high_level_expert": batch["high_level_expert"][idx].copy(),
             }
 
-            for level in ["low", "mid", "high"]:
+            for level in ["low_level_expert", "mid_level_expert", "high_level_expert"]:
                 if "questions" in result_doc[level]:
                     for qa in result_doc[level]["questions"]:
                         while True:
-                            system_prompt = prompt["system"].format(
-                                domain_name=args.domain, input_text=article_text
-                            )
+                            system_prompt = prompt["system"].format(domain_name=args.domain, input_text=article_text, lang=args.lang)
                             user_prompt = prompt["user"].format(question=qa["question"])
 
                             messages = [
@@ -129,19 +124,7 @@ def generate_answer(args):
 
             result_docs.append(result_doc)
 
-    c_utils.write_json_file(result_docs, output_filename)
-    c_utils.write_jsonl_file(result_docs, output_filename + "l")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="OpenAI Answer Generation Script")
-    parser.add_argument("--domain", type=str, default="finance", help="dataset domain")
-    parser.add_argument("--max_batch_size", type=int, default=1, help="batch_size")
-    parser.add_argument("--lang", type=str, default="korean", help="lang")
-    parser.add_argument("--prompt_type", type=str, default="answer_generation", help="prompt type")
-    parser.add_argument("--model_name", type=str, default=model)
-    parser.add_argument("--num_of_workers", type=int, default=num_of_workers, help="number of parallel workers")
-    parser.add_argument("--num_of_data", type=int, default=num_of_data)
-
-    args = parser.parse_args()
-    generate_answer(args)
+    print(f"[{pipeline}] 질문/답변 저장{output_filename + 'l'}")
+    utils.write_json_file(result_docs, output_filename)
+    utils.write_jsonl_file(result_docs, output_filename + "l")
+    print(f"[{pipeline}] 질문별 답변 생성 완료")
